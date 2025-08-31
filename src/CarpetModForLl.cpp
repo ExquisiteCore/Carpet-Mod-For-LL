@@ -1,6 +1,7 @@
-#include "mod/MyMod.h"
+#include "CarpetModForLl.h"
 
-#include "ll/api/mod/RegisterHelper.h"
+
+#include <ll/api/mod/RegisterHelper.h>
 
 namespace carpet_mod_for_ll {
 

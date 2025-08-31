@@ -1,11 +1,11 @@
 {
     "format_version": 3,
-    "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
-    "tooth": "example.com/my-user/my-mod",
+    "format_uuid": "14a8c41e-4d7f-4bf7-aa49-5d346d9d079e",
+    "tooth": "github.com/ExquisiteCore/Carpet-Mod-For-LL",
     "version": "0.0.0",
     "info": {
-        "name": "My Mod",
-        "description": "Description of my mod",
+        "name": "Carpet-Mod-For-LL",
+        "description": "Carpet-Mod-For-LL",
         "tags": [
             "platform:levilamina",
             "type:mod"
@@ -17,7 +17,7 @@
             "label": "",
             "platform": "win-x64",
             "dependencies": {
-                "github.com/LiteLDev/LeviLamina": "Required LeviLamina version range"
+                "github.com/LiteLDev/LeviLamina": ">=1.4.4"
             },
             "assets": [
                 {

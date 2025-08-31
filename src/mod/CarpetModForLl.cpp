@@ -2,7 +2,7 @@
 
 #include "ll/api/mod/RegisterHelper.h"
 
-namespace my_mod {
+namespace carpet_mod_for_ll {
 
 MyMod& MyMod::getInstance() {
     static MyMod instance;
@@ -27,6 +27,6 @@ bool MyMod::disable() {
     return true;
 }
 
-} // namespace my_mod
+} // namespace carpet_mod_for_ll
 
-LL_REGISTER_MOD(my_mod::MyMod, my_mod::MyMod::getInstance());
+LL_REGISTER_MOD(carpet_mod_for_ll::MyMod, carpet_mod_for_ll::MyMod::getInstance());

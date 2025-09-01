@@ -105,13 +105,7 @@ void CactusWrench::onPlayerInteractBlock(ll::event::PlayerInteractBlockEvent& ev
 bool CactusWrench::isCactusItem(const ItemStack& item) {
     // 检查物品是否为仙人掌
     std::string typeName = item.getTypeName();
-    auto mod = ll::mod::NativeMod::current();
-    mod->getLogger().info("CactusWrench: Checking item type: {}", typeName);
-    
-    bool isCactus = typeName == "minecraft:cactus" || typeName == "cactus";
-    mod->getLogger().info("CactusWrench: Item {} isCactus: {}", typeName, isCactus);
-    
-    return isCactus;
+    return typeName == "minecraft:cactus" || typeName == "cactus";
 }
 
 bool CactusWrench::isConcreteBlock(const Block& block) {

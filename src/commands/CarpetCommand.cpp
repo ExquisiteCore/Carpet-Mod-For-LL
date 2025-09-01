@@ -71,25 +71,6 @@ bool CarpetCommand::registerCommand() {
             handleConfig(ctx);
         });
         
-        // config <feature> 子命令
-        command.overload<CarpetCommandParams>()
-            .text("config")
-            .required("feature", &CarpetCommandParams::feature)
-            .execute([this](CommandOrigin const& origin, CommandOutput& output, const CarpetCommandParams& params) {
-                CommandContext ctx{&origin, &output, {"config", params.feature}};
-                handleConfig(ctx);
-            });
-            
-        // config <feature> <action> 子命令
-        command.overload<CarpetCommandParams>()
-            .text("config")
-            .required("feature", &CarpetCommandParams::feature)
-            .required("action", &CarpetCommandParams::action)
-            .execute([this](CommandOrigin const& origin, CommandOutput& output, const CarpetCommandParams& params) {
-                CommandContext ctx{&origin, &output, {"config", params.feature, params.action}};
-                handleConfig(ctx);
-            });
-        
         mod->getLogger().info("Command 'carpet' registered successfully");
         return true;
         

@@ -124,9 +124,12 @@ bool CactusWrench::isConcreteBlock(const Block& block) {
     bool isConcrete = blockName.find("concrete") != std::string::npos &&
                      blockName.find("powder") == std::string::npos;
     
-    // 支持侦测器/观察者方块
+    // 支持侦测器/观察者方块 - 包含更多可能的名称
     bool isDetector = blockName.find("observer") != std::string::npos ||
-                     blockName.find("detector") != std::string::npos;
+                     blockName.find("detector") != std::string::npos ||
+                     blockName == "minecraft:observer" ||
+                     blockName == "observer" ||
+                     blockName.find("observer_block") != std::string::npos;
     
     mod->getLogger().info("CactusWrench: Block {} - isConcrete: {}, isDetector: {}", 
                          blockName, isConcrete, isDetector);

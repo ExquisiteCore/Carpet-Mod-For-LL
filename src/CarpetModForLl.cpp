@@ -5,24 +5,24 @@
 
 namespace carpet_mod_for_ll {
 
-MyMod& MyMod::getInstance() {
-    static MyMod instance;
+CarpetModForLl& CarpetModForLl ::getInstance() {
+    static CarpetModForLl instance;
     return instance;
 }
 
-bool MyMod::load() {
+bool CarpetModForLl::load() {
     getSelf().getLogger().debug("Loading...");
     // Code for loading the mod goes here.
     return true;
 }
 
-bool MyMod::enable() {
+bool CarpetModForLl::enable() {
     getSelf().getLogger().debug("Enabling...");
     // Code for enabling the mod goes here.
     return true;
 }
 
-bool MyMod::disable() {
+bool CarpetModForLl::disable() {
     getSelf().getLogger().debug("Disabling...");
     // Code for disabling the mod goes here.
     return true;
@@ -30,4 +30,4 @@ bool MyMod::disable() {
 
 } // namespace carpet_mod_for_ll
 
-LL_REGISTER_MOD(carpet_mod_for_ll::MyMod, carpet_mod_for_ll::MyMod::getInstance());
+LL_REGISTER_MOD(carpet_mod_for_ll::CarpetModForLl, carpet_mod_for_ll::CarpetModForLl::getInstance());

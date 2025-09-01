@@ -4,12 +4,12 @@
 
 namespace carpet_mod_for_ll {
 
-class MyMod {
+class CarpetModForLl {
 
 public:
-    static MyMod& getInstance();
+    static CarpetModForLl& getInstance();
 
-    MyMod() : mSelf(*ll::mod::NativeMod::current()) {}
+    CarpetModForLl() : mSelf(*ll::mod::NativeMod::current()) {}
 
     [[nodiscard]] ll::mod::NativeMod& getSelf() const { return mSelf; }
 

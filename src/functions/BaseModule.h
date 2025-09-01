@@ -1,23 +1,24 @@
 #pragma once
 
-#include <string>
-#include <memory>
-#include <vector>
 #include <functional>
+#include <memory>
+#include <string>
+#include <vector>
+
 
 // Forward declarations
 namespace carpet_mod_for_ll {
 class VillageModule;
 class ProfilerModule;
-}
+} // namespace carpet_mod_for_ll
 
 namespace carpet_mod_for_ll {
 
 // 功能模块状态
 enum class ModuleState {
-    Disabled,   // 禁用
-    Enabled,    // 启用
-    Error       // 错误状态
+    Disabled, // 禁用
+    Enabled,  // 启用
+    Error     // 错误状态
 };
 
 // 功能模块基类
@@ -27,27 +28,27 @@ protected:
     std::string description;
     ModuleState state;
     std::string lastError;
-    
+
 public:
     BaseModule(const std::string& name, const std::string& desc);
     virtual ~BaseModule() = default;
-    
+
     // 基础接口
-    virtual bool onEnable() = 0;
+    virtual bool onEnable()  = 0;
     virtual bool onDisable() = 0;
-    virtual void onTick() {}  // 可选的tick处理
-    
+    // Tick功能已移除，专注于基础功能
+
     // 状态管理
-    bool enable();
-    bool disable();
-    ModuleState getState() const { return state; }
-    bool isEnabled() const { return state == ModuleState::Enabled; }
-    
+    bool                      enable();
+    bool                      disable();
+    [[nodiscard]] ModuleState getState() const { return state; }
+    [[nodiscard]] bool        isEnabled() const { return state == ModuleState::Enabled; }
+
     // 信息获取
-    const std::string& getName() const { return moduleName; }
-    const std::string& getDescription() const { return description; }
-    const std::string& getLastError() const { return lastError; }
-    
+    [[nodiscard]] const std::string& getName() const { return moduleName; }
+    [[nodiscard]] const std::string& getDescription() const { return description; }
+    [[nodiscard]] const std::string& getLastError() const { return lastError; }
+
 protected:
     void setError(const std::string& error);
     void clearError();
@@ -57,38 +58,32 @@ protected:
 class ModuleManager {
 private:
     static std::vector<std::unique_ptr<BaseModule>> modules;
-    static bool tickEnabled;
-    
+
 public:
     // 注册模块
-    template<typename T, typename... Args>
+    template <typename T, typename... Args>
     static void registerModule(Args&&... args) {
         modules.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
     }
-    
+
     // 初始化所有模块
     static void initializeAllModules();
-    
+
     // 根据配置启用/禁用模块
     static void updateModulesFromConfig();
-    
+
     // 模块管理
-    static BaseModule* getModule(const std::string& name);
+    static BaseModule*              getModule(const std::string& name);
     static std::vector<BaseModule*> getAllModules();
     static std::vector<BaseModule*> getEnabledModules();
-    
+
     // 启用/禁用模块
     static bool enableModule(const std::string& name);
     static bool disableModule(const std::string& name);
-    
-    // Tick处理
-    static void startTicking();
-    static void stopTicking();
-    static void onTick();
-    
+
     // 清理
     static void cleanup();
-    
+
     // 获取模块统计
     static size_t getTotalModuleCount();
     static size_t getEnabledModuleCount();

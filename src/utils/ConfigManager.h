@@ -42,7 +42,7 @@ public:
     void resetToDefaults();
 
     // 验证配置
-    bool validateConfig() const;
+    [[nodiscard]] bool validateConfig() const;
 };
 
 // 便捷宏定义

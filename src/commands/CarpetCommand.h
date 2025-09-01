@@ -120,17 +120,8 @@ private:
         ctx.info("  Command Prefix: §f" + config.commands.prefix);
         ctx.info("  Permission Level: §f" + std::to_string(config.commands.permissionLevel));
         
-        // 统计启用的功能
-        auto featureNames = config.getAllFeatureNames();
-        int enabledCount = 0;
-        for (const auto& name : featureNames) {
-            if (config.isFeatureEnabled(name)) {
-                enabledCount++;
-            }
-        }
-        
-        ctx.info("§6Features: §f" + std::to_string(enabledCount) + "/" + 
-                std::to_string(featureNames.size()) + " enabled");
+        // 功能统计 - 暂时显示为0，功能将在后续版本中添加
+        ctx.info("§6Features: §f0/0 enabled (Features will be added in future updates)");
     }
     
     void handleReload(const CommandContext& ctx) {
@@ -151,35 +142,10 @@ private:
     }
     
     void handleList(const CommandContext& ctx) {
-        auto& config = ConfigManager::getInstance().getConfig();
-        auto featureNames = config.getAllFeatureNames();
-        
-        if (featureNames.empty()) {
-            ctx.info("§6========== Available Features ==========");
-            ctx.info(TR("carpet.info.no_features"));
-            ctx.info("");
-            ctx.info("§7Features will be added in future updates...");
-            return;
-        }
-        
         ctx.info("§6========== Available Features ==========");
-        ctx.info(TR_FMT("carpet.info.features_total", {std::to_string(featureNames.size()), "0"}));
+        ctx.info(TR("carpet.info.no_features"));
         ctx.info("");
-        
-        for (const auto& name : featureNames) {
-            bool enabled = config.isFeatureEnabled(name);
-            const auto* feature = config.getFeature(name);
-            
-            std::string status = enabled ? "§a✓" : "§c✗";
-            std::string line = status + " §f" + name;
-            
-            if (feature && !feature->description.empty()) {
-                line += " §7- " + feature->description;
-            }
-            
-            ctx.info(line);
-        }
-        
+        ctx.info("§7Features will be added in future updates...");
         ctx.info("");
         ctx.info("§7Use '/carpet config <feature> enable/disable' to toggle features");
     }

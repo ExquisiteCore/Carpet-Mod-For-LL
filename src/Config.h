@@ -1,18 +1,8 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
-#include <vector>
 
 namespace carpet_mod_for_ll {
-
-// 功能配置结构
-struct FeatureConfig {
-    bool enabled = false;
-    std::string description;
-    std::vector<std::string> permissions;
-    std::unordered_map<std::string, std::string> options;
-};
 
 // 主配置结构
 struct Config {
@@ -38,20 +28,8 @@ struct Config {
     struct Features {
         // TODO: 添加 Carpet 功能配置
         // 示例:
-        // FeatureConfig someFeature{"Feature description"};
+        // bool someFeature = false;
     } features;
-    
-    // 获取功能配置的便捷方法
-    FeatureConfig* getFeature(const std::string& name);
-    const FeatureConfig* getFeature(const std::string& name) const;
-    
-    // 获取所有功能名称
-    std::vector<std::string> getAllFeatureNames() const;
-    
-    // 启用/禁用功能
-    bool enableFeature(const std::string& name);
-    bool disableFeature(const std::string& name);
-    bool isFeatureEnabled(const std::string& name) const;
 };
 
 } // namespace carpet_mod_for_ll

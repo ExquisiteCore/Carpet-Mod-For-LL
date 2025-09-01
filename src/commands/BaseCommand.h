@@ -1,37 +1,39 @@
 #pragma once
 
-#include <ll/api/command/Command.h>
-#include <ll/api/command/CommandHandle.h>
-#include <ll/api/command/CommandRegistrar.h>
-#include <mc/server/commands/CommandOrigin.h>
-#include <mc/server/commands/CommandOutput.h>
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
+#include <memory>
+
+
+// 前向声明
+class CommandOrigin;
+class CommandOutput;
 
 namespace carpet_mod_for_ll {
 
-// 命令权限级别
+// 命令权限级别 (与 CommandPermissionLevel 对应)
 enum class CommandPermission {
-    Everyone = 0,    // 所有人
-    Moderator = 1,   // 管理员
-    GameMaster = 2,  // 游戏管理员
-    Admin = 3,       // 管理员
-    Owner = 4        // 所有者
+    Any           = 0, // 任何人
+    GameDirectors = 1, // 创造模式玩家
+    Admin         = 2, // OP
+    Host          = 3, // 控制台
+    Owner         = 4, // 所有者
+    Internal      = 5  // 内部
 };
 
 // 命令上下文
 struct CommandContext {
-    const CommandOrigin* origin;
-    CommandOutput* output;
+    const CommandOrigin*     origin;
+    CommandOutput*           output;
     std::vector<std::string> args;
-    
+
     // 便捷方法
-    bool isPlayer() const;
-    bool isConsole() const;
-    std::string getSenderName() const;
-    bool hasPermission(CommandPermission level) const;
-    
+    [[nodiscard]] bool        isPlayer() const;
+    [[nodiscard]] bool        isConsole() const;
+    [[nodiscard]] std::string getSenderName() const;
+    [[nodiscard]] bool        hasPermission(CommandPermission level) const;
+
     // 输出方法
     void success(const std::string& message) const;
     void error(const std::string& message) const;
@@ -43,67 +45,70 @@ using SubCommandHandler = std::function<void(const CommandContext&)>;
 
 // 子命令信息
 struct SubCommandInfo {
-    std::string name;
-    std::string description;
-    std::string usage;
-    CommandPermission permission = CommandPermission::GameMaster;
-    SubCommandHandler handler;
+    std::string              name;
+    std::string              description;
+    std::string              usage;
+    CommandPermission        permission = CommandPermission::Admin;
+    SubCommandHandler        handler;
     std::vector<std::string> aliases;
-    bool playerOnly = false;
-    bool consoleOnly = false;
+    bool                     playerOnly  = false;
+    bool                     consoleOnly = false;
 };
 
 // 基础命令类
 class BaseCommand {
 protected:
-    std::string commandName;
-    std::string description;
-    CommandPermission defaultPermission;
+    std::string                 commandName;
+    std::string                 description;
+    CommandPermission           defaultPermission;
     std::vector<SubCommandInfo> subCommands;
-    
+
 public:
-    BaseCommand(const std::string& name, const std::string& desc, 
-                CommandPermission perm = CommandPermission::GameMaster);
+    BaseCommand(
+        const std::string& name,
+        const std::string& desc,
+        CommandPermission  perm = CommandPermission::GameMaster
+    );
     virtual ~BaseCommand() = default;
-    
+
     // 添加子命令
     void addSubCommand(const SubCommandInfo& subCmd);
-    
+
     // 注册命令
     virtual bool registerCommand();
-    
+
     // 主命令处理函数
     virtual void execute(const CommandContext& ctx);
-    
+
     // 显示帮助
     virtual void showHelp(const CommandContext& ctx) const;
-    
+
     // 获取子命令
-    const SubCommandInfo* findSubCommand(const std::string& name) const;
-    
+    [[nodiscard]] const SubCommandInfo* findSubCommand(const std::string& name) const;
+
     // 获取命令名称
-    const std::string& getName() const { return commandName; }
+    [[nodiscard]] const std::string& getName() const { return commandName; }
 };
 
 // 命令管理器
 class CommandManager {
 private:
     static std::vector<std::unique_ptr<BaseCommand>> commands;
-    
+
 public:
     // 注册命令
-    template<typename T, typename... Args>
+    template <typename T, typename... Args>
     static void registerCommand(Args&&... args) {
         commands.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
         commands.back()->registerCommand();
     }
-    
+
     // 注册所有命令
     static void registerAllCommands();
-    
+
     // 获取所有命令
     static const std::vector<std::unique_ptr<BaseCommand>>& getAllCommands();
-    
+
     // 清理命令
     static void cleanup();
 };

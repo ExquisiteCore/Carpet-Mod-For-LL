@@ -1,6 +1,12 @@
 #include "BaseCommand.h"
 #include "../utils/I18nManager.h"
 #include <ll/api/mod/NativeMod.h>
+#include <ll/api/service/Service.h>
+#include <ll/api/command/CommandRegistrar.h>
+#include <ll/api/command/CommandHandle.h>
+#include <mc/server/commands/CommandOrigin.h>
+#include <mc/server/commands/CommandOutput.h>
+#include <mc/server/commands/CommandPermissionLevel.h>
 #include <mc/world/actor/player/Player.h>
 
 namespace carpet_mod_for_ll {
@@ -24,7 +30,8 @@ std::string CommandContext::getSenderName() const {
 }
 
 bool CommandContext::hasPermission(CommandPermission level) const {
-    return origin->getPermissionsLevel() >= static_cast<int>(level);
+    auto permLevel = origin->getPermissionsLevel();
+    return static_cast<int>(permLevel) >= static_cast<int>(level);
 }
 
 void CommandContext::success(const std::string& message) const {
@@ -50,28 +57,34 @@ void BaseCommand::addSubCommand(const SubCommandInfo& subCmd) {
 bool BaseCommand::registerCommand() {
     try {
         auto mod = ll::mod::NativeMod::current();
-        auto& commandRegistry = ll::command::CommandRegistrar::getInstance();
         
-        // 创建命令
-        auto command = ll::command::Command::builder(commandName)
-                          .description(description)
-                          .permission(static_cast<int>(defaultPermission))
-                          .build();
+        // 获取命令注册表
+        auto commandRegistry = ll::service::getCommandRegistry();
+        if (!commandRegistry) {
+            mod->getLogger().error("Failed to get command registry for '{}'", commandName);
+            return false;
+        }
         
-        // 设置命令处理函数
-        command->setExecutor([this](const CommandOrigin& origin, CommandOutput& output, 
-                                  const ll::command::CommandContext& ctx) {
-            CommandContext ourCtx{&origin, &output, {}};
-            
-            // 解析参数
-            // 这里需要根据实际的参数解析逻辑来实现
-            // ourCtx.args = parseArguments(ctx);
-            
-            execute(ourCtx);
+        // 使用 LeviLamina 的命令注册方式
+        auto& command = ll::command::CommandRegistrar::getInstance()
+                            .getOrCreateCommand(commandName, description, 
+                                              static_cast<CommandPermissionLevel>(defaultPermission));
+        
+        // 注册主命令处理（处理无参数或help的情况）
+        command.overload().execute([this](CommandOrigin const& origin, CommandOutput& output) {
+            CommandContext ctx{&origin, &output, {"help"}};
+            execute(ctx);
         });
         
-        // 注册命令
-        commandRegistry.registerCommand(std::move(command));
+        // 为每个子命令注册一个重载
+        for (const auto& subCmd : subCommands) {
+            command.overload().text(subCmd.name).execute(
+                [this, subCmdName = subCmd.name](CommandOrigin const& origin, CommandOutput& output) {
+                    CommandContext ctx{&origin, &output, {subCmdName}};
+                    execute(ctx);
+                }
+            );
+        }
         
         mod->getLogger().info("Command '{}' registered successfully", commandName);
         return true;

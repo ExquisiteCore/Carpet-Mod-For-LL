@@ -82,29 +82,30 @@ bool ConfigManager::reload() {
     return load();     // 重新加载
 }
 
-bool ConfigManager::isFeatureEnabled(const std::string& name) const { return config.isFeatureEnabled(name); }
+// 便捷访问方法（需要根据实际功能实现）
+bool ConfigManager::isFeatureEnabled(const std::string& name) const {
+    // TODO: 根据实际功能字段实现
+    // 例如: if (name == "someFeature") return config.features.someFeature;
+    return false;
+}
 
 bool ConfigManager::enableFeature(const std::string& name) {
-    bool result = config.enableFeature(name);
-    if (result) {
-        save(); // 自动保存配置更改
-    }
-    return result;
+    // TODO: 根据实际功能字段实现
+    // 例如: if (name == "someFeature") { config.features.someFeature = true; save(); return true; }
+    return false;
 }
 
 bool ConfigManager::disableFeature(const std::string& name) {
-    bool result = config.disableFeature(name);
-    if (result) {
-        save(); // 自动保存配置更改
-    }
-    return result;
+    // TODO: 根据实际功能字段实现  
+    // 例如: if (name == "someFeature") { config.features.someFeature = false; save(); return true; }
+    return false;
 }
 
 void ConfigManager::resetToDefaults() {
     config = Config{}; // 重置为默认配置
-
+    
     // TODO: 设置功能的默认启用状态
-    // config.features.someFeature.enabled = false;
+    // config.features.someFeature = false;
 }
 
 bool ConfigManager::validateConfig() const {

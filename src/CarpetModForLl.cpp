@@ -49,10 +49,6 @@ bool CarpetModForLl::enable() {
         ModuleManager::initializeAllModules();
         getSelf().getLogger().info("Modules initialized");
 
-        // 启动模块Tick系统
-        ModuleManager::startTicking();
-        getSelf().getLogger().info("Module ticking started");
-
         getSelf().getLogger().info("Carpet Mod For LL enabled successfully");
         return true;
 

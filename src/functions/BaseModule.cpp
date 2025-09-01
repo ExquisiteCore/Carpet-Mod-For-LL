@@ -1,12 +1,10 @@
 #include "BaseModule.h"
 #include "../utils/ConfigManager.h"
 #include <ll/api/mod/NativeMod.h>
-#include <ll/api/schedule/Scheduler.h>
 
 namespace carpet_mod_for_ll {
 
 std::vector<std::unique_ptr<BaseModule>> ModuleManager::modules;
-bool                                     ModuleManager::tickEnabled = false;
 
 // BaseModule 实现
 BaseModule::BaseModule(const std::string& name, const std::string& desc)
@@ -156,49 +154,7 @@ bool ModuleManager::disableModule(const std::string& name) {
     return false;
 }
 
-void ModuleManager::startTicking() {
-    if (tickEnabled) return;
-
-    tickEnabled = true;
-
-    // 设置定时器进行tick处理
-    ll::schedule::repeat(
-        []() {
-            if (tickEnabled) {
-                onTick();
-            }
-        },
-        1
-    ); // 每tick执行一次
-
-    auto mod = ll::mod::NativeMod::current();
-    mod->getLogger().info("Module ticking started");
-}
-
-void ModuleManager::stopTicking() {
-    tickEnabled = false;
-
-    auto mod = ll::mod::NativeMod::current();
-    mod->getLogger().info("Module ticking stopped");
-}
-
-void ModuleManager::onTick() {
-    for (auto& module : modules) {
-        if (module->isEnabled()) {
-            try {
-                module->onTick();
-            } catch (const std::exception& e) {
-                auto mod = ll::mod::NativeMod::current();
-                mod->getLogger().error("Exception in module '{}' tick: {}", module->getName(), e.what());
-                // 可以考虑暂时禁用出错的模块
-            }
-        }
-    }
-}
-
 void ModuleManager::cleanup() {
-    stopTicking();
-
     // 禁用所有模块
     for (auto& module : modules) {
         if (module->isEnabled()) {

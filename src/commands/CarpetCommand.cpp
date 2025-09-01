@@ -47,11 +47,13 @@ bool CarpetCommand::registerCommand() {
         
         // reload 子命令 (需要管理员权限)
         command.overload().text("reload").execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            CommandContext ctx{&origin, &output, {"reload"}};
-            if (!ctx.hasPermission(CommandPermission::Admin)) {
-                ctx.error(TR("carpet.error.permission"));
+            // 检查执行者是否有权限
+            if (origin.getPermissionsLevel() < CommandPermissionLevel::Admin) {
+                output.error("Only administrators can use this command");
                 return;
             }
+            
+            CommandContext ctx{&origin, &output, {"reload"}};
             handleReload(ctx);
         });
         

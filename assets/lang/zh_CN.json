@@ -1,0 +1,27 @@
+{
+    "carpet.mod.name": "地毯模组 For LL",
+    "carpet.mod.description": "一个全面的基岩版地毯模组，为生存和技术玩家提供技术工具和功能。",
+    
+    "carpet.command.help": "显示地毯命令的帮助信息",
+    "carpet.command.config": "配置地毯模组设置",
+    "carpet.command.info": "显示模组信息和状态",
+    
+    "carpet.config.loaded": "配置加载成功",
+    "carpet.config.saved": "配置保存成功",
+    "carpet.config.error.load": "加载配置失败: {}",
+    "carpet.config.error.save": "保存配置失败: {}",
+    
+    "carpet.feature.enabled": "功能 '{}' 已启用",
+    "carpet.feature.disabled": "功能 '{}' 已禁用",
+    "carpet.feature.not_found": "未找到功能 '{}'",
+    
+    "carpet.error.permission": "您没有权限使用此命令",
+    "carpet.error.invalid_args": "参数无效。使用 '/carpet help' 获取使用信息",
+    "carpet.error.player_only": "此命令只能由玩家使用",
+    "carpet.error.console_only": "此命令只能从控制台使用",
+    
+    "carpet.info.version": "地毯模组 For LL v{} 适用于 Minecraft {}",
+    "carpet.info.author": "为 LeviLamina 开发",
+    "carpet.info.commands": "可用命令: {}",
+    "carpet.info.features": "可用功能: {}"
+}

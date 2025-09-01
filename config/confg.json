@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "general": {
+    "language": "zh_CN",
+    "enableDebugLogging": false,
+    "enableCommandLogging": true
+  },
+  "commands": {
+    "prefix": "carpet",
+    "permissionLevel": 2
+  },
+  "features": {
+    "villageInfo": {
+      "enabled": false,
+      "description": "Show village information"
+    },
+    "profiler": {
+      "enabled": false,
+      "description": "Server performance profiler"
+    }
+  }
+}

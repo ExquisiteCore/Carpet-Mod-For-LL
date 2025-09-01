@@ -1,0 +1,27 @@
+{
+    "carpet.mod.name": "Carpet Mod For LL",
+    "carpet.mod.description": "A comprehensive carpet mod for Minecraft Bedrock Edition, providing technical tools and features for survival and technical players.",
+    
+    "carpet.command.help": "Shows help information for carpet commands",
+    "carpet.command.config": "Configure carpet mod settings",
+    "carpet.command.info": "Display mod information and status",
+    
+    "carpet.config.loaded": "Configuration loaded successfully",
+    "carpet.config.saved": "Configuration saved successfully",
+    "carpet.config.error.load": "Failed to load configuration: {}",
+    "carpet.config.error.save": "Failed to save configuration: {}",
+    
+    "carpet.feature.enabled": "Feature '{}' has been enabled",
+    "carpet.feature.disabled": "Feature '{}' has been disabled",
+    "carpet.feature.not_found": "Feature '{}' not found",
+    
+    "carpet.error.permission": "You don't have permission to use this command",
+    "carpet.error.invalid_args": "Invalid arguments. Use '/carpet help' for usage information",
+    "carpet.error.player_only": "This command can only be used by players",
+    "carpet.error.console_only": "This command can only be used from console",
+    
+    "carpet.info.version": "Carpet Mod For LL v{} for Minecraft {}",
+    "carpet.info.author": "Developed for LeviLamina",
+    "carpet.info.commands": "Available commands: {}",
+    "carpet.info.features": "Available features: {}"
+}

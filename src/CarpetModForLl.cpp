@@ -1,13 +1,15 @@
 #include "CarpetModForLl.h"
 
-#include "Config.h"
+#include "commands/BaseCommand.h"
+#include "commands/CarpetCommand.h"
+#include "functions/BaseModule.h"
+#include "utils/ConfigManager.h"
+#include "utils/I18nManager.h"
 #include <ll/api/Config.h>
 #include <ll/api/mod/RegisterHelper.h>
 
+
 namespace carpet_mod_for_ll {
-namespace {
-Config config;
-} // namespace
 
 CarpetModForLl& CarpetModForLl ::getInstance() {
     static CarpetModForLl instance;
@@ -15,30 +17,78 @@ CarpetModForLl& CarpetModForLl ::getInstance() {
 }
 
 bool CarpetModForLl::load() {
-    getSelf().getLogger().info("Loading...");
-    // Code for loading the mod goes here.
-    const auto& configFilePath = getSelf().getConfigDir() / "config.json";
-    if (!ll::config::loadConfig(config, configFilePath)) {
-        getSelf().getLogger().warn("Cannot load configurations from {}", configFilePath);
-        getSelf().getLogger().info("Saving default configurations");
+    getSelf().getLogger().info("Loading Carpet Mod For LL...");
 
-        if (!ll::config::saveConfig(config, configFilePath)) {
-            getSelf().getLogger().error("Cannot save default configurations to {}", configFilePath);
-        }
+    try {
+        // 初始化 I18n 系统
+        I18nManager::initialize();
+        getSelf().getLogger().info("I18n system initialized");
+
+        // 初始化配置管理器
+        ConfigManager::initialize();
+        getSelf().getLogger().info("Configuration system initialized");
+
+        getSelf().getLogger().info("Carpet Mod For LL loaded successfully");
+        return true;
+
+    } catch (const std::exception& e) {
+        getSelf().getLogger().error("Failed to load Carpet Mod For LL: {}", e.what());
+        return false;
     }
-    return true;
 }
 
 bool CarpetModForLl::enable() {
-    getSelf().getLogger().debug("Enabling...");
-    // Code for enabling the mod goes here.
-    return true;
+    getSelf().getLogger().info("Enabling Carpet Mod For LL...");
+
+    try {
+        // 注册命令
+        CommandManager::registerCommand<CarpetCommand>();
+        getSelf().getLogger().info("Commands registered");
+
+        // 初始化功能模块
+        ModuleManager::initializeAllModules();
+        getSelf().getLogger().info("Modules initialized");
+
+        // 启动模块Tick系统
+        ModuleManager::startTicking();
+        getSelf().getLogger().info("Module ticking started");
+
+        getSelf().getLogger().info("Carpet Mod For LL enabled successfully");
+        return true;
+
+    } catch (const std::exception& e) {
+        getSelf().getLogger().error("Failed to enable Carpet Mod For LL: {}", e.what());
+        return false;
+    }
 }
 
 bool CarpetModForLl::disable() {
-    getSelf().getLogger().debug("Disabling...");
-    // Code for disabling the mod goes here.
-    return true;
+    getSelf().getLogger().info("Disabling Carpet Mod For LL...");
+
+    try {
+        // 清理模块系统
+        ModuleManager::cleanup();
+        getSelf().getLogger().info("Modules cleaned up");
+
+        // 清理命令系统
+        CommandManager::cleanup();
+        getSelf().getLogger().info("Commands cleaned up");
+
+        // 清理配置管理器
+        ConfigManager::cleanup();
+        getSelf().getLogger().info("Configuration system cleaned up");
+
+        // 清理 I18n 系统
+        I18nManager::cleanup();
+        getSelf().getLogger().info("I18n system cleaned up");
+
+        getSelf().getLogger().info("Carpet Mod For LL disabled successfully");
+        return true;
+
+    } catch (const std::exception& e) {
+        getSelf().getLogger().error("Failed to disable Carpet Mod For LL: {}", e.what());
+        return false;
+    }
 }
 
 } // namespace carpet_mod_for_ll

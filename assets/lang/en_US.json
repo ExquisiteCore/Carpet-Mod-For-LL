@@ -22,6 +22,6 @@
     
     "carpet.info.version": "Carpet Mod For LL v{} for Minecraft {}",
     "carpet.info.author": "Developed for LeviLamina",
-    "carpet.info.commands": "Available commands: {}",
-    "carpet.info.features": "Available features: {}"
+    "carpet.info.no_features": "No features are currently available",
+    "carpet.info.features_total": "Total features: {} (enabled: {})"
 }

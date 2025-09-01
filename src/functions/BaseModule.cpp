@@ -1,6 +1,4 @@
 #include "BaseModule.h"
-#include "VillageModule.h"
-#include "ProfilerModule.h"
 #include "../utils/ConfigManager.h"
 #include <ll/api/mod/NativeMod.h>
 #include <ll/api/schedule/Scheduler.h>
@@ -79,10 +77,8 @@ void ModuleManager::initializeAllModules() {
     auto& mod = ll::mod::NativeMod::current();
     mod.getLogger().info("Initializing all modules...");
     
-    // 注册所有功能模块
-    registerModule<VillageModule>();
-    registerModule<ProfilerModule>();
-    // 后续添加更多模块...
+    // TODO: 注册功能模块
+    // 示例: registerModule<YourModule>();
     
     mod.getLogger().info("All modules initialized. Total: {}", modules.size());
     

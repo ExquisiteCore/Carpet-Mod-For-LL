@@ -4,6 +4,8 @@
 
 Carpet Mod For LL 是基于 LeviLamina 平台开发的 Minecraft 基岩版地毯模组，参考了 trapdoor-ll 的设计理念，为技术玩家和服务器管理员提供强大的调试和管理工具。
 
+项目当前处于架构完成阶段，所有核心系统已就绪，等待功能模块的具体实现。
+
 ## 核心架构
 
 ### 目录结构
@@ -18,20 +20,15 @@ src/
 │   ├── BaseCommand.h           # 命令基类
 │   ├── BaseCommand.cpp         # 命令基类实现
 │   └── CarpetCommand.h         # 主命令实现
-├── functions/                  # 功能模块
+├── functions/                  # 功能模块框架
 │   ├── BaseModule.h            # 模块基类
-│   ├── BaseModule.cpp          # 模块基类实现
-│   ├── VillageModule.h         # 村庄功能模块
-│   ├── VillageModule.cpp       # 村庄功能实现
-│   ├── ProfilerModule.h        # 性能分析模块
-│   └── ProfilerModule.cpp      # 性能分析实现
+│   └── BaseModule.cpp          # 模块基类实现
 ├── utils/                      # 工具类
 │   ├── ConfigManager.h         # 配置管理器
 │   ├── ConfigManager.cpp       # 配置管理实现
 │   ├── I18nManager.h           # 国际化管理器
 │   └── I18nManager.cpp         # 国际化管理实现
-└── data/                       # 数据结构
-    └── Position.h              # 位置和区域结构
+└── data/                       # 数据结构 (待添加)
 
 assets/
 └── lang/                       # 语言文件
@@ -48,9 +45,10 @@ assets/
 - 自动序列化/反序列化
 - 运行时配置验证
 - 热重载支持
+- 模块化功能配置
 
 #### 主要组件
-- `Config`: 主配置结构，包含所有功能模块的配置
+- `Config`: 主配置结构，包含通用设置和功能配置占位
 - `FeatureConfig`: 功能模块配置结构
 - `ConfigManager`: 单例配置管理器
 
@@ -60,13 +58,19 @@ assets/
 auto& config = CONFIG;
 
 // 检查功能是否启用
-if (IS_FEATURE_ENABLED("villageInfo")) {
+if (IS_FEATURE_ENABLED("featureName")) {
     // 执行功能逻辑
 }
 
 // 启用/禁用功能
-ConfigManager::getInstance().enableFeature("profiler");
+ConfigManager::getInstance().enableFeature("featureName");
 ```
+
+#### 配置扩展
+添加新功能配置需要：
+1. 在 `Config.h` 的 `Features` 结构中添加 `FeatureConfig` 字段
+2. 在 `Config.cpp` 的 `featureMap` 中添加映射关系
+3. 在 `ConfigManager.cpp` 中设置默认状态
 
 ### 2. 国际化系统 (I18n System)
 
@@ -87,8 +91,14 @@ ConfigManager::getInstance().enableFeature("profiler");
 std::string msg = TR("carpet.mod.name");
 
 // 参数化翻译
-std::string msg = TR_FMT("carpet.feature.enabled", {"villageInfo"});
+std::string msg = TR_FMT("carpet.feature.enabled", {"featureName"});
 ```
+
+#### 语言扩展
+添加新语言支持需要：
+1. 在 `assets/lang/` 目录创建对应的 `.json` 文件
+2. 翻译所有现有的键值对
+3. 在配置中设置语言选项
 
 ### 3. 命令系统 (Command System)
 
@@ -99,24 +109,35 @@ std::string msg = TR_FMT("carpet.feature.enabled", {"villageInfo"});
 - 类型安全的参数处理
 
 #### 主要组件
-- `BaseCommand`: 命令基类
-- `CommandContext`: 命令执行上下文
+- `BaseCommand`: 命令基类，提供子命令框架
+- `CommandContext`: 命令执行上下文，包含发送者信息
 - `SubCommandInfo`: 子命令信息结构
 - `CommandManager`: 命令管理器
 
-#### 命令注册
-```cpp
-// 注册命令
-CommandManager::registerCommand<CarpetCommand>();
+#### 核心命令 (CarpetCommand)
+提供以下子命令：
+- `help` - 显示帮助信息
+- `config` - 配置功能开关
+- `info` - 显示模组信息
+- `reload` - 重载配置和语言文件
+- `list` - 列出所有功能（当前为空）
 
-// 添加子命令
-addSubCommand({
-    .name = "config",
-    .description = "Configure features",
-    .usage = "/carpet config <feature> [enable|disable]",
-    .permission = CommandPermission::Admin,
-    .handler = [this](const CommandContext& ctx) { handleConfig(ctx); }
-});
+#### 命令扩展
+```cpp
+// 创建新命令类
+class MyCommand : public BaseCommand {
+public:
+    MyCommand() : BaseCommand("mycommand", "My command description") {
+        addSubCommand({
+            .name = "test",
+            .description = "Test subcommand",
+            .handler = [this](const CommandContext& ctx) { handleTest(ctx); }
+        });
+    }
+};
+
+// 注册命令
+CommandManager::registerCommand<MyCommand>();
 ```
 
 ### 4. 功能模块系统 (Module System)
@@ -132,7 +153,14 @@ addSubCommand({
 - `ModuleManager`: 模块管理器
 - `ModuleState`: 模块状态枚举
 
-#### 模块开发
+#### 模块生命周期
+1. **注册阶段**: `ModuleManager::registerModule<T>()`
+2. **初始化阶段**: `initializeAllModules()`
+3. **配置同步**: `updateModulesFromConfig()`
+4. **运行阶段**: `startTicking()` -> `onTick()`
+5. **清理阶段**: `cleanup()`
+
+#### 模块开发框架
 ```cpp
 class MyModule : public BaseModule {
 public:
@@ -157,84 +185,95 @@ public:
 ModuleManager::registerModule<MyModule>();
 ```
 
-## 已实现功能
+## 架构优势
 
-### 1. 村庄模块 (VillageModule)
-- 村庄信息扫描
-- 村庄边界可视化
-- 村庄统计数据
-- 实时更新
+### 1. 模块化设计
+- 功能模块完全独立，互不影响
+- 可插拔式架构，易于扩展和维护
+- 配置驱动的功能控制
 
-### 2. 性能分析模块 (ProfilerModule)
-- TPS 监控
-- MSPT 统计
-- 内存使用监控
-- 实体统计
-- 区块统计
-- 性能报告生成
-
-## 主要特性
-
-### 类型安全
+### 2. 类型安全
 - 使用现代C++20特性
 - 强类型的配置和数据结构
 - RAII资源管理
 
-### 模块化设计
-- 松耦合的模块架构
-- 可插拔的功能系统
-- 清晰的职责分离
+### 3. 性能优化
+- 智能的Tick系统，避免不必要的计算
+- 统一的模块管理，减少系统开销
+- 异常安全的错误处理
 
-### 性能优化
-- 智能的Tick系统
-- 内存池和缓存机制
-- 异步数据处理
+### 4. 用户友好
+- 多语言界面支持
+- 详细的错误信息和日志
+- 直观的命令系统
 
-### 用户友好
-- 详细的错误信息
-- 自动补全支持
-- 多语言界面
+### 5. 开发友好
+- 清晰的代码结构和职责分离
+- 完整的开发文档和示例
+- 标准化的开发流程
 
-## 扩展开发
+## 当前状态
+
+### ✅ 已完成
+- 完整的架构设计
+- 配置管理系统
+- 国际化支持
+- 命令框架
+- 模块管理框架
+- 基础文档
+
+### ⏳ 待实现
+- 具体的功能模块
+- 数据结构定义
+- API 集成
+- 测试用例
+- 性能优化
+
+## 扩展开发指南
 
 ### 添加新功能模块
 
-1. 创建模块类继承 `BaseModule`
-2. 实现 `onEnable()`, `onDisable()`, `onTick()` 方法
-3. 在 `ModuleManager::initializeAllModules()` 中注册
-4. 在 `Config.h` 中添加对应的配置项
+1. **创建模块文件**
+   - `src/functions/YourModule.h` - 模块声明
+   - `src/functions/YourModule.cpp` - 模块实现
+
+2. **实现模块类**
+   ```cpp
+   class YourModule : public BaseModule {
+       // 实现必要的虚函数
+   };
+   ```
+
+3. **注册模块**
+   在 `BaseModule.cpp` 的 `initializeAllModules()` 中添加：
+   ```cpp
+   registerModule<YourModule>();
+   ```
+
+4. **添加配置**
+   在 `Config.h` 和 `Config.cpp` 中添加对应的配置项
+
+5. **更新语言文件**
+   在 `assets/lang/` 中添加相关的翻译文本
 
 ### 添加新命令
 
-1. 创建命令类继承 `BaseCommand`
-2. 在构造函数中添加子命令
-3. 实现子命令处理函数
-4. 在 `CommandManager::registerAllCommands()` 中注册
+1. **创建命令类**
+   继承 `BaseCommand` 并实现子命令
 
-### 添加多语言支持
+2. **注册命令**
+   在主模组的 `enable()` 方法中注册
 
-1. 在 `assets/lang/` 目录添加语言文件
-2. 使用 `TR()` 和 `TR_FMT()` 宏替换硬编码文本
-3. 更新配置文件中的语言选项
+3. **更新帮助文档**
+   确保命令有适当的描述和使用说明
 
-## 构建和部署
+### 数据结构设计
 
-### 构建命令
-```bash
-# 配置构建环境
-xmake f -y -p windows -a x64 -m release
-
-# 编译项目
-xmake
-
-# 清理构建
-xmake clean
-```
-
-### 部署步骤
-1. 编译生成 `.dll` 文件
-2. 复制到 LeviLamina 的 `plugins/` 目录
-3. 启动服务器，模组将自动加载
+当需要添加数据结构时：
+1. 在 `src/data/` 目录创建对应文件
+2. 定义类型安全的数据结构
+3. 提供必要的转换和操作方法
+4. 考虑序列化需求
 
 ## 技术栈
 
@@ -251,7 +290,7 @@ xmake clean
 ### 代码风格
 - 遵循现代C++最佳实践
 - 使用智能指针管理内存
-- 统一的命名约定
+- 统一的命名约定 (驼峰命名)
 - 详细的代码注释
 
 ### 错误处理
@@ -265,4 +304,4 @@ xmake clean
 - 优化热路径代码
 - 定期性能分析
 
-这个架构为未来的功能扩展提供了坚实的基础，同时保持了代码的可维护性和性能。
+这个架构为 Carpet Mod For LL 的功能实现提供了坚实的基础，既保证了代码的可维护性，又确保了良好的性能表现。所有的核心系统都已就绪，等待具体功能模块的实现。

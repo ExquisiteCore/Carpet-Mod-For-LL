@@ -115,12 +115,9 @@ bool ConfigManager::disableFeature(const std::string& name) {
 
 void ConfigManager::resetToDefaults() {
     config = Config{}; // 重置为默认配置
-
-    // 设置一些常用功能的默认启用状态
-    config.features.villageInfo.enabled       = false;
-    config.features.profiler.enabled          = false;
-    config.features.hudDisplay.enabled        = false;
-    config.features.coordinateDisplay.enabled = false;
+    
+    // TODO: 设置功能的默认启用状态
+    // config.features.someFeature.enabled = false;
 }
 
 bool ConfigManager::validateConfig() const {

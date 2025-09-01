@@ -4,11 +4,11 @@
 
 ## 🌟 特性
 
-- **🏘️ 村庄系统**: 村庄信息显示、边界可视化、统计分析
-- **📊 性能分析**: TPS监控、内存使用统计、实体和区块分析
+- **🎯 模块化架构**: 灵活的插件式功能模块，可独立开关
 - **🌐 多语言支持**: 支持中文、英文等多种语言
-- **⚙️ 灵活配置**: 功能模块独立开关，运行时热重载
-- **🎯 命令系统**: 直观的命令界面，权限控制，自动补全
+- **⚙️ 灵活配置**: 功能模块独立配置，运行时热重载
+- **🎮 命令系统**: 直观的命令界面，权限控制，自动补全
+- **📊 准备就绪**: 完整的架构基础，等待功能实现
 
 ## 🚀 快速开始
 
@@ -23,7 +23,7 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/your-repo/Carpet-Mod-For-LL.git
+   git clone https://github.com/ExquisiteCore/Carpet-Mod-For-LL.git
    cd Carpet-Mod-For-LL
    ```
 
@@ -49,39 +49,28 @@
 # 查看帮助
 /carpet help
 
-# 启用功能
-/carpet config villageInfo enable
-/carpet config profiler enable
-
 # 查看模组信息
 /carpet info
 
-# 列出所有功能
+# 列出所有功能 (当前为空，等待实现)
 /carpet list
 
 # 重载配置
 /carpet reload
 ```
 
-### 功能模块
+### 当前状态
 
-#### 🏘️ 村庄分析
-- **功能**: 扫描和分析服务器中的村庄
-- **用法**: `/carpet config villageInfo enable`
-- **特性**: 
-  - 村庄边界显示
-  - 村民统计
-  - 工作站和床位分析
-  - 铁傀儡状态
+项目当前处于基础架构完成状态，包含：
 
-#### 📊 性能分析器
-- **功能**: 监控服务器性能指标
-- **用法**: `/carpet config profiler enable`
-- **特性**:
-  - 实时TPS监控
-  - 内存使用统计
-  - 实体和区块统计
-  - 性能报告生成
+✅ **完成的系统**:
+- 配置管理系统
+- 国际化支持
+- 命令框架
+- 模块管理框架
+
+⏳ **待实现功能**:
+- 所有 Carpet 功能模块都在计划中，详见 [FEATURES_TODO.md](FEATURES_TODO.md)
 
 ## ⚙️ 配置文件
 
@@ -100,14 +89,7 @@
     "permissionLevel": 2
   },
   "features": {
-    "villageInfo": {
-      "enabled": false,
-      "description": "Show village information"
-    },
-    "profiler": {
-      "enabled": false,
-      "description": "Server performance profiler"
-    }
+    // 功能配置将在实现时添加
   }
 }
 ```
@@ -155,59 +137,54 @@ ModuleManager::registerModule<MyModule>();
 
 3. 添加配置项到 `Config.h`
 
-### 添加新命令
+### 功能开发计划
 
-1. 继承 `BaseCommand` 类
-2. 实现子命令处理逻辑
-3. 在 `CommandManager` 中注册
+我们计划实现的所有功能详见 [FEATURES_TODO.md](FEATURES_TODO.md)，包括：
 
-### 多语言支持
+- 🏗️ **基础设施**: HUD显示、性能监控、日志系统
+- 🤖 **自动化工具**: 假玩家、红石调试、世界控制
+- 🌍 **世界分析**: 区块工具、村庄系统、生成分析
+- 📊 **数据统计**: 实体管理、物品统计、玩家数据
+- 🔧 **开发工具**: 方块信息、测试工具、网络分析
 
-在 `assets/lang/` 目录添加对应的语言文件，使用 `TR()` 宏替换硬编码文本。
+## 📊 开发进度
 
-## 📊 性能优化
-
-- **智能Tick系统**: 避免不必要的计算
-- **内存管理**: 使用智能指针，避免内存泄漏
-- **异步处理**: 重要操作异步执行
-- **缓存机制**: 合理缓存计算结果
+- ✅ **架构设计** - 完成
+- ✅ **基础框架** - 完成
+- ⏳ **功能模块** - 等待实现
+- ⏳ **测试完善** - 待开始
+- ⏳ **文档完善** - 进行中
 
 ## 🤝 参与贡献
 
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 开启 Pull Request
+我们欢迎所有形式的贡献！
+
+### 如何开始
+1. 查看 [FEATURES_TODO.md](FEATURES_TODO.md) 选择感兴趣的功能
+2. Fork 项目
+3. 创建特性分支 (`git checkout -b feature/amazing-feature`)
+4. 实现功能并添加测试
+5. 提交更改 (`git commit -m 'Add amazing feature'`)
+6. 推送到分支 (`git push origin feature/amazing-feature`)
+7. 开启 Pull Request
 
 ### 代码规范
 
 - 使用现代 C++20 特性
 - 遵循项目命名约定
 - 添加适当的错误处理
-- 编写单元测试
-
-## 📋 待办事项
-
-- [ ] 假玩家系统
-- [ ] HUD 显示系统
-- [ ] 红石调试工具
-- [ ] 方块信息显示
-- [ ] 实体追踪系统
-- [ ] 区块加载工具
-- [ ] 漏斗计数器
-- [ ] 史莱姆区块查找器
+- 编写清晰的文档和注释
 
 ## 🙋 常见问题
 
-### Q: 模组加载失败怎么办？
-A: 检查 LeviLamina 版本是否兼容，查看服务器日志了解具体错误信息。
+### Q: 为什么功能列表是空的？
+A: 项目当前专注于建立稳固的架构基础。所有 Carpet 功能都在开发计划中，您可以参与实现！
 
-### Q: 如何更新配置？
-A: 可以直接编辑配置文件，然后使用 `/carpet reload` 命令重载。
+### Q: 如何参与开发？
+A: 查看 [FEATURES_TODO.md](FEATURES_TODO.md) 了解计划功能，选择感兴趣的模块开始贡献。
 
-### Q: 功能启用后没有效果？
-A: 确认权限等级足够，检查模组日志是否有错误信息。
+### Q: 项目的目标是什么？
+A: 为 Minecraft 基岩版提供类似 Java 版 Carpet Mod 的完整功能集，专为技术玩家和服务器管理员设计。
 
 ## 📄 许可证
 

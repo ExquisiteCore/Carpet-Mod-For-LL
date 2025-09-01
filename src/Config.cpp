@@ -6,36 +6,9 @@ namespace carpet_mod_for_ll {
 
 // 功能名称到配置指针的映射
 static std::unordered_map<std::string, std::function<FeatureConfig*(Config*)>> featureMap = {
-    // 村庄相关
-    {"villageInfo", [](Config* c) { return &c->features.villageInfo; }},
-    {"villageVisualize", [](Config* c) { return &c->features.villageVisualize; }},
-    
-    // 性能分析
-    {"profiler", [](Config* c) { return &c->features.profiler; }},
-    {"tpsMonitor", [](Config* c) { return &c->features.tpsMonitor; }},
-    
-    // 假玩家
-    {"fakePlayers", [](Config* c) { return &c->features.fakePlayers; }},
-    {"playerManager", [](Config* c) { return &c->features.playerManager; }},
-    
-    // 世界控制
-    {"tickControl", [](Config* c) { return &c->features.tickControl; }},
-    {"chunkLoader", [](Config* c) { return &c->features.chunkLoader; }},
-    
-    // 技术工具
-    {"redstoneTools", [](Config* c) { return &c->features.redstoneTools; }},
-    {"blockInfo", [](Config* c) { return &c->features.blockInfo; }},
-    {"entityInfo", [](Config* c) { return &c->features.entityInfo; }},
-    
-    // HUD显示
-    {"hudDisplay", [](Config* c) { return &c->features.hudDisplay; }},
-    {"coordinateDisplay", [](Config* c) { return &c->features.coordinateDisplay; }},
-    
-    // 实用工具
-    {"hopperCounter", [](Config* c) { return &c->features.hopperCounter; }},
-    {"slimeChunk", [](Config* c) { return &c->features.slimeChunk; }},
-    {"spawnAnalyzer", [](Config* c) { return &c->features.spawnAnalyzer; }},
-    {"distanceTools", [](Config* c) { return &c->features.distanceTools; }}
+    // TODO: 添加功能配置映射
+    // 示例:
+    // {"featureName", [](Config* c) { return &c->features.featureName; }},
 };
 
 FeatureConfig* Config::getFeature(const std::string& name) {

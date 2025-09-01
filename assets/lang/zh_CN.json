@@ -22,6 +22,6 @@
     
     "carpet.info.version": "地毯模组 For LL v{} 适用于 Minecraft {}",
     "carpet.info.author": "为 LeviLamina 开发",
-    "carpet.info.commands": "可用命令: {}",
-    "carpet.info.features": "可用功能: {}"
+    "carpet.info.no_features": "当前没有可用的功能",
+    "carpet.info.features_total": "总功能数: {} (已启用: {})"
 }

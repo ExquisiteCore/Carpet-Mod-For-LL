@@ -34,38 +34,11 @@ struct Config {
         bool enableCommandHistory = true;
     } commands;
     
-    // 功能设置 - 参考 trapdoor-ll 的功能模块
+    // 功能设置 - 待实现的 Carpet 功能
     struct Features {
-        // 村庄相关
-        FeatureConfig villageInfo{"Show village information"};
-        FeatureConfig villageVisualize{"Visualize village boundaries"};
-        
-        // 性能分析
-        FeatureConfig profiler{"Server performance profiler"};
-        FeatureConfig tpsMonitor{"TPS monitoring"};
-        
-        // 假玩家
-        FeatureConfig fakePlayers{"Fake player system"};
-        FeatureConfig playerManager{"Player management tools"};
-        
-        // 世界控制
-        FeatureConfig tickControl{"World tick control"};
-        FeatureConfig chunkLoader{"Chunk loading tools"};
-        
-        // 技术工具
-        FeatureConfig redstoneTools{"Redstone debugging tools"};
-        FeatureConfig blockInfo{"Block information display"};
-        FeatureConfig entityInfo{"Entity information display"};
-        
-        // HUD显示
-        FeatureConfig hudDisplay{"HUD information display"};
-        FeatureConfig coordinateDisplay{"Coordinate display"};
-        
-        // 实用工具
-        FeatureConfig hopperCounter{"Hopper item counter"};
-        FeatureConfig slimeChunk{"Slime chunk finder"};
-        FeatureConfig spawnAnalyzer{"Spawn analysis tools"};
-        FeatureConfig distanceTools{"Distance measurement tools"};
+        // TODO: 添加 Carpet 功能配置
+        // 示例:
+        // FeatureConfig someFeature{"Feature description"};
     } features;
     
     // 获取功能配置的便捷方法

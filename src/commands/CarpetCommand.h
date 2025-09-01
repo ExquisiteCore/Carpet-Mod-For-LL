@@ -154,8 +154,16 @@ private:
         auto& config = ConfigManager::getInstance().getConfig();
         auto featureNames = config.getAllFeatureNames();
         
+        if (featureNames.empty()) {
+            ctx.info("§6========== Available Features ==========");
+            ctx.info(TR("carpet.info.no_features"));
+            ctx.info("");
+            ctx.info("§7Features will be added in future updates...");
+            return;
+        }
+        
         ctx.info("§6========== Available Features ==========");
-        ctx.info("§7Total: " + std::to_string(featureNames.size()) + " features");
+        ctx.info(TR_FMT("carpet.info.features_total", {std::to_string(featureNames.size()), "0"}));
         ctx.info("");
         
         for (const auto& name : featureNames) {

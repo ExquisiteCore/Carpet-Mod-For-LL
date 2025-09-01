@@ -15,7 +15,8 @@ std::vector<std::unique_ptr<BaseCommand>> CommandManager::commands;
 
 // CommandContext 实现
 bool CommandContext::isPlayer() const {
-    return origin->getOriginType() == CommandOriginType::Player;
+    auto* entity = origin->getEntity();
+    return entity != nullptr && entity->isPlayer();
 }
 
 bool CommandContext::isConsole() const {
@@ -58,13 +59,6 @@ bool BaseCommand::registerCommand() {
     try {
         auto mod = ll::mod::NativeMod::current();
         
-        // 获取命令注册表
-        auto commandRegistry = ll::service::getCommandRegistry();
-        if (!commandRegistry) {
-            mod->getLogger().error("Failed to get command registry for '{}'", commandName);
-            return false;
-        }
-        
         // 使用 LeviLamina 的命令注册方式
         auto& command = ll::command::CommandRegistrar::getInstance()
                             .getOrCreateCommand(commandName, description, 
@@ -72,7 +66,7 @@ bool BaseCommand::registerCommand() {
         
         // 注册主命令处理（处理无参数或help的情况）
         command.overload().execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            CommandContext ctx{&origin, &output, {"help"}};
+            CommandContext ctx{&origin, &output, {}};
             execute(ctx);
         });
         

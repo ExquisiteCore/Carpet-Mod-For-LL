@@ -67,7 +67,7 @@ public:
     BaseCommand(
         const std::string& name,
         const std::string& desc,
-        CommandPermission  perm = CommandPermission::GameMaster
+        CommandPermission  perm = CommandPermission::Admin
     );
     virtual ~BaseCommand() = default;
 

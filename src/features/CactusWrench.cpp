@@ -80,9 +80,8 @@ void CactusWrench::onPlayerInteractBlock(ll::event::PlayerInteractBlockEvent& ev
         
         auto& block = blockOpt.value();
 
-        // 检查是否为仙人掌物品 + 混凝土方块的组合
+        // 执行漏斗计数器打印功能
         if (isCactusItem(item) && isConcreteBlock(block)) {
-            // 执行漏斗计数器打印功能
             executeCounterPrint(&player, blockPos);
             
             // 阻止默认行为 (根据配置决定)
@@ -90,10 +89,6 @@ void CactusWrench::onPlayerInteractBlock(ll::event::PlayerInteractBlockEvent& ev
             if (config.features.cactusWrench.preventDefaultAction) {
                 event.cancel();
             }
-            
-            auto mod = ll::mod::NativeMod::current();
-            mod->getLogger().info("CactusWrench triggered by player {} at ({}, {}, {})", 
-                                 player.getRealName(), blockPos.x, blockPos.y, blockPos.z);
         }
 
     } catch (const std::exception& e) {
@@ -111,8 +106,6 @@ bool CactusWrench::isCactusItem(const ItemStack& item) {
 bool CactusWrench::isConcreteBlock(const Block& block) {
     // 检查方块是否为混凝土或侦测器
     std::string blockName = block.getTypeName();
-    auto mod = ll::mod::NativeMod::current();
-    mod->getLogger().info("CactusWrench: Checking block type: {}", blockName);
     
     // 支持混凝土方块 (排除混凝土粉末)
     bool isConcrete = blockName.find("concrete") != std::string::npos &&
@@ -125,22 +118,14 @@ bool CactusWrench::isConcreteBlock(const Block& block) {
                      blockName == "observer" ||
                      blockName.find("observer_block") != std::string::npos;
     
-    mod->getLogger().info("CactusWrench: Block {} - isConcrete: {}, isDetector: {}", 
-                         blockName, isConcrete, isDetector);
-    
     return isConcrete || isDetector;
 }
 
 void CactusWrench::executeCounterPrint(Player* player, const BlockPos& pos) {
     try {
-        auto mod = ll::mod::NativeMod::current();
-        
         // 获取配置中的目标命令
         auto& config = ConfigManager::getInstance().getConfig();
         std::string command = formatCommand(config.features.cactusWrench.targetCommand, player, pos);
-        
-        mod->getLogger().info("CactusWrench: Player {} triggered counter print at ({}, {}, {})", 
-                             player->getRealName(), pos.x, pos.y, pos.z);
 
         // 暂时通过消息通知玩家，而不是直接执行命令
         // 实际应该通过服务器命令系统执行，或者集成漏斗计数器功能

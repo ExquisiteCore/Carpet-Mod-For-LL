@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BaseCommand.h"
-#include "../utils/ConfigManager.h"
 #include "../utils/I18nManager.h"
+#include "BaseCommand.h"
+
 
 namespace carpet_mod_for_ll {
 
@@ -12,7 +12,7 @@ public:
 
     // 重写注册命令方法以使用更好的参数处理
     bool registerCommand() override;
-    
+
     // 显示帮助
     void showHelp(const CommandContext& ctx) const override;
 

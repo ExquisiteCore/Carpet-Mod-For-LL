@@ -50,7 +50,7 @@ bool CarpetCommand::registerCommand() {
         command.overload().text("reload").execute([this](CommandOrigin const& origin, CommandOutput& output) {
             // 检查执行者是否有权限
             if (origin.getPermissionsLevel() < CommandPermissionLevel::Admin) {
-                output.error("Only administrators can use this command");
+                output.error(TR("carpet.error.admin_only"));
                 return;
             }
             
@@ -69,7 +69,7 @@ bool CarpetCommand::registerCommand() {
         command.overload().text("config").execute([this, mod](CommandOrigin const& origin, CommandOutput& output) {
             auto* entity = origin.getEntity();
             if (entity == nullptr || !entity->isPlayer()) {
-                output.error("This command can only be used by players");
+                output.error(TR("carpet.error.player_only"));
                 return;
             }
             
@@ -79,8 +79,8 @@ bool CarpetCommand::registerCommand() {
             // 这里可以访问player对象进行特定操作
             mod->getLogger().info("{} used config command", player->getRealName());
             
-            ctx.info("Config command - usage: /carpet config <feature> [enable|disable]");
-            ctx.info("Available features will be added in future updates");
+            ctx.info(TR("carpet.config.usage"));
+            ctx.info(TR("carpet.config.available"));
         });
         
         mod->getLogger().info("Command 'carpet' registered successfully");
@@ -99,7 +99,7 @@ void CarpetCommand::handleHelp(const CommandContext& ctx) {
 
 void CarpetCommand::handleConfig(const CommandContext& ctx) {
     if (ctx.args.size() < 2) {
-        ctx.error("Usage: /carpet config <feature> [enable|disable]");
+        ctx.error(TR("carpet.config.usage.detailed"));
         return;
     }
     
@@ -109,26 +109,26 @@ void CarpetCommand::handleConfig(const CommandContext& ctx) {
     // 如果只有功能名称，显示当前状态
     if (ctx.args.size() == 2) {
         bool enabled = configManager.isFeatureEnabled(featureName);
-        ctx.info("Feature '" + featureName + "' is currently " + 
-                (enabled ? "§aenabled" : "§cdisabled"));
+        std::string status = enabled ? TR("carpet.config.feature.enabled_status") : TR("carpet.config.feature.disabled_status");
+        ctx.info(TR_FMT("carpet.config.feature.status", featureName, status));
         return;
     }
     
     std::string action = ctx.args[2];
     bool success = false;
     
-    if (action == "enable" || action == "on" || action == "true") {
+    if (action == "enable" || action == "on" || action == "true" || action == "启用") {
         success = configManager.enableFeature(featureName);
         if (success) {
             ctx.success(TR_FMT("carpet.feature.enabled", featureName));
         }
-    } else if (action == "disable" || action == "off" || action == "false") {
+    } else if (action == "disable" || action == "off" || action == "false" || action == "禁用") {
         success = configManager.disableFeature(featureName);
         if (success) {
             ctx.success(TR_FMT("carpet.feature.disabled", featureName));
         }
     } else {
-        ctx.error("Invalid action. Use 'enable' or 'disable'");
+        ctx.error(TR("carpet.config.action.invalid"));
         return;
     }
     
@@ -138,7 +138,7 @@ void CarpetCommand::handleConfig(const CommandContext& ctx) {
 }
 
 void CarpetCommand::handleInfo(const CommandContext& ctx) {
-    ctx.info("§6========== Carpet Mod For LL ==========");
+    ctx.info(TR("carpet.info.title"));
     ctx.info(TR_FMT("carpet.info.version", "1.0.0", "1.21.0"));
     ctx.info(TR("carpet.info.author"));
     ctx.info("");
@@ -146,17 +146,17 @@ void CarpetCommand::handleInfo(const CommandContext& ctx) {
     auto& configManager = ConfigManager::getInstance();
     auto& config = configManager.getConfig();
     
-    ctx.info("§6Configuration:");
-    ctx.info("  Language: §f" + config.general.language);
-    ctx.info("  Command Prefix: §f" + config.commands.prefix);
-    ctx.info("  Permission Level: §f" + std::to_string(config.commands.permissionLevel));
+    ctx.info(TR("carpet.info.config"));
+    ctx.info(TR("carpet.info.language") + config.general.language);
+    ctx.info(TR("carpet.info.prefix") + config.commands.prefix);
+    ctx.info(TR("carpet.info.permission") + std::to_string(config.commands.permissionLevel));
     
     // 功能统计 - 暂时显示为0，功能将在后续版本中添加
-    ctx.info("§6Features: §f0/0 enabled (Features will be added in future updates)");
+    ctx.info(TR_FMT("carpet.info.features_count", "0"));
 }
 
 void CarpetCommand::handleReload(const CommandContext& ctx) {
-    ctx.info("Reloading configuration and language files...");
+    ctx.info(TR("carpet.reload.start"));
     
     // 重载配置
     bool configSuccess = ConfigManager::getInstance().reload();
@@ -165,35 +165,36 @@ void CarpetCommand::handleReload(const CommandContext& ctx) {
     bool i18nSuccess = I18nManager::getInstance().reload();
     
     if (configSuccess && i18nSuccess) {
-        ctx.success("All files reloaded successfully");
+        ctx.success(TR("carpet.reload.success"));
     } else {
-        if (!configSuccess) ctx.error("Failed to reload configuration");
-        if (!i18nSuccess) ctx.error("Failed to reload language files");
+        if (!configSuccess) ctx.error(TR("carpet.reload.config_failed"));
+        if (!i18nSuccess) ctx.error(TR("carpet.reload.i18n_failed"));
     }
 }
 
 void CarpetCommand::handleList(const CommandContext& ctx) {
-    ctx.info("§6========== Available Features ==========");
+    ctx.info(TR("carpet.list.title"));
     ctx.info(TR("carpet.info.no_features"));
     ctx.info("");
-    ctx.info("§7Features will be added in future updates...");
+    ctx.info(TR("carpet.list.empty"));
     ctx.info("");
-    ctx.info("§7Use '/carpet config <feature> enable/disable' to toggle features");
+    ctx.info(TR("carpet.list.usage"));
 }
 
 void CarpetCommand::showHelp(const CommandContext& ctx) const {
-    ctx.info("§6========== Carpet Help ==========");
-    ctx.info("§7Carpet Mod for LeviLamina - Technical enhancements for Minecraft Bedrock");
-    ctx.info("§7Usage: /carpet <subcommand> [args...]");
+    ctx.info(TR("carpet.help.title"));
+    ctx.info(TR("carpet.help.description"));
+    ctx.info(TR("carpet.help.usage"));
     ctx.info("");
     
-    ctx.info("§6Available subcommands:");
-    ctx.info("§7  help §f- Show this help message");
-    ctx.info("§7  info §f- Show mod information and version");
-    ctx.info("§7  list §f- List all available features");
-    ctx.info("§7  reload §8(Admin) §f- Reload configuration and language files");
+    ctx.info(TR("carpet.help.subcommands"));
+    ctx.info("§7  " + TR("carpet.help.subcmd.help"));
+    ctx.info("§7  " + TR("carpet.help.subcmd.info"));
+    ctx.info("§7  " + TR("carpet.help.subcmd.list"));
+    ctx.info("§7  " + TR("carpet.help.subcmd.reload"));
+    ctx.info("§7  " + TR("carpet.help.subcmd.config"));
     ctx.info("");
-    ctx.info("§7Use '/carpet <subcommand>' for detailed help on each command");
+    ctx.info("§7" + TR("carpet.help.footer"));
 }
 
 } // namespace carpet_mod_for_ll

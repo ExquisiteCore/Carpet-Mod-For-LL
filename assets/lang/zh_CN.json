@@ -19,9 +19,46 @@
     "carpet.error.invalid_args": "参数无效。使用 '/carpet help' 获取使用信息",
     "carpet.error.player_only": "此命令只能由玩家使用",
     "carpet.error.console_only": "此命令只能从控制台使用",
+    "carpet.error.admin_only": "只有管理员才能使用此命令",
     
     "carpet.info.version": "地毯模组 For LL v{} 适用于 Minecraft {}",
     "carpet.info.author": "为 LeviLamina 开发",
     "carpet.info.no_features": "当前没有可用的功能",
-    "carpet.info.features_total": "总功能数: {} (已启用: {})"
+    "carpet.info.features_total": "总功能数: {} (已启用: {})",
+    
+    "carpet.help.title": "========== 地毯帮助 ==========",
+    "carpet.help.description": "地毯模组 For LeviLamina - 为 Minecraft 基岩版提供技术增强",
+    "carpet.help.usage": "用法: /carpet <子命令> [参数...]",
+    "carpet.help.subcommands": "可用子命令:",
+    "carpet.help.subcmd.help": "help - 显示此帮助信息",
+    "carpet.help.subcmd.info": "info - 显示模组信息和版本",
+    "carpet.help.subcmd.list": "list - 列出所有可用功能",
+    "carpet.help.subcmd.reload": "reload §8(管理员) §f- 重载配置和语言文件",
+    "carpet.help.subcmd.config": "config - 配置功能 (用法: /carpet config <功能> [启用|禁用])",
+    "carpet.help.footer": "使用 '/carpet <子命令>' 获取每个命令的详细帮助",
+    
+    "carpet.info.title": "========== 地毯模组 For LL ==========",
+    "carpet.info.config": "§6配置:",
+    "carpet.info.language": "  语言: §f",
+    "carpet.info.prefix": "  命令前缀: §f",
+    "carpet.info.permission": "  权限级别: §f",
+    "carpet.info.features_count": "§6功能: §f{}/0 已启用 (功能将在未来版本中添加)",
+    
+    "carpet.list.title": "========== 可用功能 ==========",
+    "carpet.list.empty": "§7功能将在未来版本中添加...",
+    "carpet.list.usage": "§7使用 '/carpet config <功能> 启用/禁用' 来切换功能",
+    
+    "carpet.config.usage": "配置命令 - 用法: /carpet config <功能> [启用|禁用]",
+    "carpet.config.available": "可用功能将在未来版本中添加",
+    
+    "carpet.reload.start": "正在重载配置和语言文件...",
+    "carpet.reload.success": "所有文件重载成功",
+    "carpet.reload.config_failed": "配置重载失败",
+    "carpet.reload.i18n_failed": "语言文件重载失败",
+    
+    "carpet.config.feature.status": "功能 '{}' 当前状态为 {}",
+    "carpet.config.feature.enabled_status": "§a已启用",
+    "carpet.config.feature.disabled_status": "§c已禁用",
+    "carpet.config.action.invalid": "无效操作。使用 '启用' 或 '禁用'",
+    "carpet.config.usage.detailed": "用法: /carpet config <功能> [启用|禁用]"
 }

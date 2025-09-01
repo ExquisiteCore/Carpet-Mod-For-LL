@@ -19,9 +19,46 @@
     "carpet.error.invalid_args": "Invalid arguments. Use '/carpet help' for usage information",
     "carpet.error.player_only": "This command can only be used by players",
     "carpet.error.console_only": "This command can only be used from console",
+    "carpet.error.admin_only": "Only administrators can use this command",
     
     "carpet.info.version": "Carpet Mod For LL v{} for Minecraft {}",
     "carpet.info.author": "Developed for LeviLamina",
     "carpet.info.no_features": "No features are currently available",
-    "carpet.info.features_total": "Total features: {} (enabled: {})"
+    "carpet.info.features_total": "Total features: {} (enabled: {})",
+    
+    "carpet.help.title": "========== Carpet Help ==========",
+    "carpet.help.description": "Carpet Mod for LeviLamina - Technical enhancements for Minecraft Bedrock",
+    "carpet.help.usage": "Usage: /carpet <subcommand> [args...]",
+    "carpet.help.subcommands": "Available subcommands:",
+    "carpet.help.subcmd.help": "help - Show this help message",
+    "carpet.help.subcmd.info": "info - Show mod information and version",
+    "carpet.help.subcmd.list": "list - List all available features",
+    "carpet.help.subcmd.reload": "reload (Admin) - Reload configuration and language files",
+    "carpet.help.subcmd.config": "config - Configure features (usage: /carpet config <feature> [enable|disable])",
+    "carpet.help.footer": "Use '/carpet <subcommand>' for detailed help on each command",
+    
+    "carpet.info.title": "========== Carpet Mod For LL ==========",
+    "carpet.info.config": "Configuration:",
+    "carpet.info.language": "Language:",
+    "carpet.info.prefix": "Command Prefix:",
+    "carpet.info.permission": "Permission Level:",
+    "carpet.info.features_count": "Features: {}/0 enabled (Features will be added in future updates)",
+    
+    "carpet.list.title": "========== Available Features ==========",
+    "carpet.list.empty": "Features will be added in future updates...",
+    "carpet.list.usage": "Use '/carpet config <feature> enable/disable' to toggle features",
+    
+    "carpet.config.usage": "Config command - usage: /carpet config <feature> [enable|disable]",
+    "carpet.config.available": "Available features will be added in future updates",
+    
+    "carpet.reload.start": "Reloading configuration and language files...",
+    "carpet.reload.success": "All files reloaded successfully",
+    "carpet.reload.config_failed": "Failed to reload configuration",
+    "carpet.reload.i18n_failed": "Failed to reload language files",
+    
+    "carpet.config.feature.status": "Feature '{}' is currently {}",
+    "carpet.config.feature.enabled_status": "enabled",
+    "carpet.config.feature.disabled_status": "disabled",
+    "carpet.config.action.invalid": "Invalid action. Use 'enable' or 'disable'",
+    "carpet.config.usage.detailed": "Usage: /carpet config <feature> [enable|disable]"
 }

@@ -1,9 +1,13 @@
 #include "CarpetModForLl.h"
 
-
+#include "Config.h"
+#include <ll/api/Config.h>
 #include <ll/api/mod/RegisterHelper.h>
 
 namespace carpet_mod_for_ll {
+namespace {
+Config config;
+} // namespace
 
 CarpetModForLl& CarpetModForLl ::getInstance() {
     static CarpetModForLl instance;
@@ -11,8 +15,17 @@ CarpetModForLl& CarpetModForLl ::getInstance() {
 }
 
 bool CarpetModForLl::load() {
-    getSelf().getLogger().debug("Loading...");
+    getSelf().getLogger().info("Loading...");
     // Code for loading the mod goes here.
+    const auto& configFilePath = getSelf().getConfigDir() / "config.json";
+    if (!ll::config::loadConfig(config, configFilePath)) {
+        getSelf().getLogger().warn("Cannot load configurations from {}", configFilePath);
+        getSelf().getLogger().info("Saving default configurations");
+
+        if (!ll::config::saveConfig(config, configFilePath)) {
+            getSelf().getLogger().error("Cannot save default configurations to {}", configFilePath);
+        }
+    }
     return true;
 }
 

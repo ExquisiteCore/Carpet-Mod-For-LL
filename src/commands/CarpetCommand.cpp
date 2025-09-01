@@ -8,6 +8,7 @@
 #include <mc/server/commands/CommandOrigin.h>
 #include <mc/server/commands/CommandOutput.h>
 #include <mc/server/commands/CommandPermissionLevel.h>
+#include <mc/world/actor/player/Player.h>
 
 namespace carpet_mod_for_ll {
 
@@ -61,6 +62,25 @@ bool CarpetCommand::registerCommand() {
         command.overload().text("list").execute([this](CommandOrigin const& origin, CommandOutput& output) {
             CommandContext ctx{&origin, &output, {"list"}};
             handleList(ctx);
+        });
+        
+        // 添加带参数的config命令结构 - 暂时保持简单，后续扩展
+        // 这里演示了如何按照文档要求检查实体类型
+        command.overload().text("config").execute([this, mod](CommandOrigin const& origin, CommandOutput& output) {
+            auto* entity = origin.getEntity();
+            if (entity == nullptr || !entity->isPlayer()) {
+                output.error("This command can only be used by players");
+                return;
+            }
+            
+            auto* player = static_cast<Player*>(entity); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+            CommandContext ctx{&origin, &output, {"config"}};
+            
+            // 这里可以访问player对象进行特定操作
+            mod->getLogger().info("{} used config command", player->getRealName());
+            
+            ctx.info("Config command - usage: /carpet config <feature> [enable|disable]");
+            ctx.info("Available features will be added in future updates");
         });
         
         mod->getLogger().info("Command 'carpet' registered successfully");

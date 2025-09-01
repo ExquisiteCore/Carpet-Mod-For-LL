@@ -49,7 +49,7 @@ void BaseCommand::addSubCommand(const SubCommandInfo& subCmd) {
 
 bool BaseCommand::registerCommand() {
     try {
-        auto& mod = ll::mod::NativeMod::current();
+        auto mod = ll::mod::NativeMod::current();
         auto& commandRegistry = ll::command::CommandRegistrar::getInstance();
         
         // 创建命令
@@ -73,12 +73,12 @@ bool BaseCommand::registerCommand() {
         // 注册命令
         commandRegistry.registerCommand(std::move(command));
         
-        mod.getLogger().info("Command '{}' registered successfully", commandName);
+        mod->getLogger().info("Command '{}' registered successfully", commandName);
         return true;
         
     } catch (const std::exception& e) {
-        auto& mod = ll::mod::NativeMod::current();
-        mod.getLogger().error("Failed to register command '{}': {}", commandName, e.what());
+        auto mod = ll::mod::NativeMod::current();
+        mod->getLogger().error("Failed to register command '{}': {}", commandName, e.what());
         return false;
     }
 }
@@ -126,8 +126,8 @@ void BaseCommand::execute(const CommandContext& ctx) {
         subCmd->handler(ctx);
     } catch (const std::exception& e) {
         ctx.error("Command execution failed: " + std::string(e.what()));
-        auto& mod = ll::mod::NativeMod::current();
-        mod.getLogger().error("Exception in command '{}' subcommand '{}': {}", 
+        auto mod = ll::mod::NativeMod::current();
+        mod->getLogger().error("Exception in command '{}' subcommand '{}': {}", 
                              commandName, subCmd->name, e.what());
     }
 }
@@ -183,8 +183,8 @@ const SubCommandInfo* BaseCommand::findSubCommand(const std::string& name) const
 
 // CommandManager 实现
 void CommandManager::registerAllCommands() {
-    auto& mod = ll::mod::NativeMod::current();
-    mod.getLogger().info("Registering all commands...");
+    auto mod = ll::mod::NativeMod::current();
+    mod->getLogger().info("Registering all commands...");
     
     // 这里后续会添加具体的命令注册
     // registerCommand<CarpetCommand>();
@@ -192,7 +192,7 @@ void CommandManager::registerAllCommands() {
     // registerCommand<ProfilerCommand>();
     // 等等...
     
-    mod.getLogger().info("All commands registered successfully");
+    mod->getLogger().info("All commands registered successfully");
 }
 
 const std::vector<std::unique_ptr<BaseCommand>>& CommandManager::getAllCommands() {

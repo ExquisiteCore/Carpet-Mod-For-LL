@@ -1,5 +1,4 @@
 #include "ConfigManager.h"
-#include <LL/api/io/Logger.h>
 #include <ll/api/Config.h>
 #include <ll/api/mod/NativeMod.h>
 
@@ -9,8 +8,8 @@ namespace carpet_mod_for_ll {
 std::unique_ptr<ConfigManager> ConfigManager::instance = nullptr;
 
 ConfigManager::ConfigManager() {
-    auto& mod  = ll::mod::NativeMod::current();
-    configPath = mod.getConfigDir() / "config.json";
+    auto mod   = ll::mod::NativeMod::current();
+    configPath = mod->getConfigDir() / "config.json";
 }
 
 ConfigManager& ConfigManager::getInstance() {
@@ -33,63 +32,51 @@ void ConfigManager::cleanup() {
 }
 
 bool ConfigManager::load() {
-    auto& mod    = ll::mod::NativeMod::current();
-    auto& logger = mod.getLogger();
+    auto mod = ll::mod::NativeMod::current();
 
-    try {
-        if (!std::filesystem::exists(configPath)) {
-            logger.info("Config file not found, creating default config");
-            resetToDefaults();
-            return save();
-        }
-
-        if (ll::config::loadConfig(config, configPath)) {
-            logger.info("Configuration loaded successfully from {}", configPath.string());
-
-            // 验证配置
-            if (!validateConfig()) {
-                logger.warn("Configuration validation failed, using defaults");
-                resetToDefaults();
-                save();
-            }
-
-            return true;
-        } else {
-            logger.error("Failed to load configuration from {}", configPath.string());
-            resetToDefaults();
+    // Load or initialize configurations
+    if (!ll::config::loadConfig(config, configPath)) {
+        mod->getLogger().warn("Cannot load configurations from {}", configPath.string());
+        mod->getLogger().info("Saving default configurations");
+        
+        resetToDefaults();
+        
+        if (!ll::config::saveConfig(config, configPath)) {
+            mod->getLogger().error("Cannot save default configurations to {}", configPath.string());
             return false;
         }
-    } catch (const std::exception& e) {
-        logger.error("Exception while loading config: {}", e.what());
-        resetToDefaults();
-        return false;
+    } else {
+        mod->getLogger().info("Configuration loaded successfully from {}", configPath.string());
+        
+        // 验证配置
+        if (!validateConfig()) {
+            mod->getLogger().warn("Configuration validation failed, using defaults");
+            resetToDefaults();
+            save();
+        }
     }
+
+    return true;
 }
 
 bool ConfigManager::save() {
-    auto& mod    = ll::mod::NativeMod::current();
-    auto& logger = mod.getLogger();
+    auto mod = ll::mod::NativeMod::current();
 
-    try {
-        // 确保配置目录存在
-        std::filesystem::create_directories(configPath.parent_path());
+    // 确保配置目录存在
+    std::filesystem::create_directories(configPath.parent_path());
 
-        if (ll::config::saveConfig(config, configPath)) {
-            logger.info("Configuration saved successfully to {}", configPath.string());
-            return true;
-        } else {
-            logger.error("Failed to save configuration to {}", configPath.string());
-            return false;
-        }
-    } catch (const std::exception& e) {
-        logger.error("Exception while saving config: {}", e.what());
+    if (ll::config::saveConfig(config, configPath)) {
+        mod->getLogger().info("Configuration saved successfully to {}", configPath.string());
+        return true;
+    } else {
+        mod->getLogger().error("Failed to save configuration to {}", configPath.string());
         return false;
     }
 }
 
 bool ConfigManager::reload() {
-    auto& mod = ll::mod::NativeMod::current();
-    mod.getLogger().info("Reloading configuration...");
+    auto mod = ll::mod::NativeMod::current();
+    mod->getLogger().info("Reloading configuration...");
 
     resetToDefaults(); // 重置为默认值
     return load();     // 重新加载
@@ -115,7 +102,7 @@ bool ConfigManager::disableFeature(const std::string& name) {
 
 void ConfigManager::resetToDefaults() {
     config = Config{}; // 重置为默认配置
-    
+
     // TODO: 设置功能的默认启用状态
     // config.features.someFeature.enabled = false;
 }

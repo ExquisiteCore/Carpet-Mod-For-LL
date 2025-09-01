@@ -20,7 +20,7 @@ struct Config {
     
     // 基础设置
     struct General {
-        std::string language = "en_US";
+        std::string language = "zh_CN";
         bool enableDebugLogging = false;
         bool enableCommandLogging = true;
         int maxCacheSize = 1000;

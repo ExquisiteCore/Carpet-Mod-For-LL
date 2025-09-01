@@ -11,7 +11,7 @@
 
 namespace carpet_mod_for_ll {
 
-CarpetModForLl& CarpetModForLl ::getInstance() {
+CarpetModForLl& CarpetModForLl::getInstance() {
     static CarpetModForLl instance;
     return instance;
 }

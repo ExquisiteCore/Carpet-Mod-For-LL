@@ -1,6 +1,7 @@
 #include "CarpetCommand.h"
 #include "../utils/ConfigManager.h"
 #include "../utils/I18nManager.h"
+#include "../functions/BaseModule.h"
 #include <ll/api/mod/NativeMod.h>
 #include <ll/api/service/Service.h>
 #include <ll/api/command/CommandRegistrar.h>
@@ -64,24 +65,30 @@ bool CarpetCommand::registerCommand() {
             handleList(ctx);
         });
         
-        // 添加带参数的config命令结构 - 暂时保持简单，后续扩展
-        // 这里演示了如何按照文档要求检查实体类型
-        command.overload().text("config").execute([this, mod](CommandOrigin const& origin, CommandOutput& output) {
-            auto* entity = origin.getEntity();
-            if (entity == nullptr || !entity->isPlayer()) {
-                output.error(TR("carpet.error.player_only"));
-                return;
-            }
-            
-            auto* player = static_cast<Player*>(entity); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+        // config 子命令 (无参数)
+        command.overload().text("config").execute([this](CommandOrigin const& origin, CommandOutput& output) {
             CommandContext ctx{&origin, &output, {"config"}};
-            
-            // 这里可以访问player对象进行特定操作
-            mod->getLogger().info("{} used config command", player->getRealName());
-            
-            ctx.info(TR("carpet.config.usage"));
-            ctx.info(TR("carpet.config.available"));
+            handleConfig(ctx);
         });
+        
+        // config <feature> 子命令
+        command.overload<CarpetCommandParams>()
+            .text("config")
+            .required("feature", &CarpetCommandParams::feature)
+            .execute([this](CommandOrigin const& origin, CommandOutput& output, const CarpetCommandParams& params) {
+                CommandContext ctx{&origin, &output, {"config", params.feature}};
+                handleConfig(ctx);
+            });
+            
+        // config <feature> <action> 子命令
+        command.overload<CarpetCommandParams>()
+            .text("config")
+            .required("feature", &CarpetCommandParams::feature)
+            .required("action", &CarpetCommandParams::action)
+            .execute([this](CommandOrigin const& origin, CommandOutput& output, const CarpetCommandParams& params) {
+                CommandContext ctx{&origin, &output, {"config", params.feature, params.action}};
+                handleConfig(ctx);
+            });
         
         mod->getLogger().info("Command 'carpet' registered successfully");
         return true;
@@ -121,11 +128,27 @@ void CarpetCommand::handleConfig(const CommandContext& ctx) {
         success = configManager.enableFeature(featureName);
         if (success) {
             ctx.success(TR_FMT("carpet.feature.enabled", featureName));
+            
+            // 如果是cactus_wrench，动态启用模块
+            if (featureName == "cactus_wrench") {
+                auto* module = ModuleManager::getModule("cactus_wrench");
+                if (module && !module->isEnabled()) {
+                    module->enable();
+                }
+            }
         }
     } else if (action == "disable" || action == "off" || action == "false" || action == "禁用") {
         success = configManager.disableFeature(featureName);
         if (success) {
             ctx.success(TR_FMT("carpet.feature.disabled", featureName));
+            
+            // 如果是cactus_wrench，动态禁用模块
+            if (featureName == "cactus_wrench") {
+                auto* module = ModuleManager::getModule("cactus_wrench");
+                if (module && module->isEnabled()) {
+                    module->disable();
+                }
+            }
         }
     } else {
         ctx.error(TR("carpet.config.action.invalid"));
@@ -174,9 +197,11 @@ void CarpetCommand::handleReload(const CommandContext& ctx) {
 
 void CarpetCommand::handleList(const CommandContext& ctx) {
     ctx.info(TR("carpet.list.title"));
-    ctx.info(TR("carpet.info.no_features"));
     ctx.info("");
-    ctx.info(TR("carpet.list.empty"));
+    
+    // 显示仙人掌扳手功能
+    ctx.info("§6Available Features:");
+    ctx.info("§7  cactus_wrench §f- " + TR("carpet.cactus_wrench.feature.description"));
     ctx.info("");
     ctx.info(TR("carpet.list.usage"));
 }

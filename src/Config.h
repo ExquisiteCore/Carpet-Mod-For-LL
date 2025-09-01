@@ -24,9 +24,16 @@ struct Config {
         bool enableCommandHistory = true;
     } commands;
     
-    // 功能设置 - 待实现的 Carpet 功能
+    // 功能设置 - Carpet 功能配置
     struct Features {
-        // TODO: 添加 Carpet 功能配置
+        // 仙人掌扳手设置
+        struct CactusWrench {
+            bool enabled = true;
+            bool preventDefaultAction = false; // 是否阻止默认的物品使用行为
+            std::string targetCommand = "/carpet counter print {bx} {by} {bz}"; // 执行的命令
+        } cactusWrench;
+        
+        // TODO: 添加其他 Carpet 功能配置
         // 示例:
         // bool someFeature = false;
     } features;

@@ -2,6 +2,7 @@
 
 #include "commands/BaseCommand.h"
 #include "commands/CarpetCommand.h"
+#include "features/CactusWrench.h"
 #include "functions/BaseModule.h"
 #include "utils/ConfigManager.h"
 #include "utils/I18nManager.h"
@@ -44,6 +45,10 @@ bool CarpetModForLl::enable() {
         // 注册命令
         CommandManager::registerCommand<CarpetCommand>();
         getSelf().getLogger().info("Commands registered");
+
+        // 注册功能模块
+        ModuleManager::registerModule<CactusWrench>();
+        getSelf().getLogger().info("CactusWrench module registered");
 
         // 初始化功能模块
         ModuleManager::initializeAllModules();

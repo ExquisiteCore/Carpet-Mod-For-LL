@@ -84,20 +84,30 @@ bool ConfigManager::reload() {
 
 // 便捷访问方法（需要根据实际功能实现）
 bool ConfigManager::isFeatureEnabled(const std::string& name) const {
-    // TODO: 根据实际功能字段实现
-    // 例如: if (name == "someFeature") return config.features.someFeature;
+    if (name == "cactus_wrench") {
+        return config.features.cactusWrench.enabled;
+    }
+    // TODO: 添加其他功能的支持
     return false;
 }
 
 bool ConfigManager::enableFeature(const std::string& name) {
-    // TODO: 根据实际功能字段实现
-    // 例如: if (name == "someFeature") { config.features.someFeature = true; save(); return true; }
+    if (name == "cactus_wrench") {
+        config.features.cactusWrench.enabled = true;
+        save();
+        return true;
+    }
+    // TODO: 添加其他功能的支持
     return false;
 }
 
 bool ConfigManager::disableFeature(const std::string& name) {
-    // TODO: 根据实际功能字段实现  
-    // 例如: if (name == "someFeature") { config.features.someFeature = false; save(); return true; }
+    if (name == "cactus_wrench") {
+        config.features.cactusWrench.enabled = false;
+        save();
+        return true;
+    }
+    // TODO: 添加其他功能的支持
     return false;
 }
 

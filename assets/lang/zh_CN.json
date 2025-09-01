@@ -42,14 +42,14 @@
     "carpet.info.language": "  语言: §f",
     "carpet.info.prefix": "  命令前缀: §f",
     "carpet.info.permission": "  权限级别: §f",
-    "carpet.info.features_count": "§6功能: §f{}/0 已启用 (功能将在未来版本中添加)",
+    "carpet.info.features_count": "§6功能: §f{}/1 已启用 (仙人掌扳手可用)",
     
     "carpet.list.title": "========== 可用功能 ==========",
     "carpet.list.empty": "§7功能将在未来版本中添加...",
     "carpet.list.usage": "§7使用 '/carpet config <功能> 启用/禁用' 来切换功能",
     
     "carpet.config.usage": "配置命令 - 用法: /carpet config <功能> [启用|禁用]",
-    "carpet.config.available": "可用功能将在未来版本中添加",
+    "carpet.config.available": "可用功能: 仙人掌扳手 (cactus_wrench)",
     
     "carpet.reload.start": "正在重载配置和语言文件...",
     "carpet.reload.success": "所有文件重载成功",
@@ -60,5 +60,10 @@
     "carpet.config.feature.enabled_status": "§a已启用",
     "carpet.config.feature.disabled_status": "§c已禁用",
     "carpet.config.action.invalid": "无效操作。使用 '启用' 或 '禁用'",
-    "carpet.config.usage.detailed": "用法: /carpet config <功能> [启用|禁用]"
+    "carpet.config.usage.detailed": "用法: /carpet config <功能> [启用|禁用]",
+    
+    "carpet.cactus_wrench.success": "仙人掌扳手: 在坐标 ({}, {}, {}) 执行了漏斗计数器打印",
+    "carpet.cactus_wrench.error": "仙人掌扳手: 执行漏斗计数器打印命令失败",
+    "carpet.cactus_wrench.feature.name": "仙人掌扳手",
+    "carpet.cactus_wrench.feature.description": "右键仙人掌对混凝土可打印漏斗计数器信息"
 }

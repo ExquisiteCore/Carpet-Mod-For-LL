@@ -16,7 +16,10 @@ std::vector<std::unique_ptr<BaseCommand>> CommandManager::commands;
 // CommandContext 实现
 bool CommandContext::isPlayer() const {
     auto* entity = origin->getEntity();
-    return entity != nullptr && entity->isPlayer();
+    if (entity == nullptr) {
+        return false;
+    }
+    return entity->isPlayer();
 }
 
 bool CommandContext::isConsole() const {

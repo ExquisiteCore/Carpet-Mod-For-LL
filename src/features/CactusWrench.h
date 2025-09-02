@@ -5,6 +5,7 @@
 #include <ll/api/event/player/PlayerInteractBlockEvent.h>
 #include <mc/world/item/ItemStack.h>
 #include <mc/world/level/block/Block.h>
+#include <mc/world/level/BlockSource.h>
 #include <mc/world/level/dimension/Dimension.h>
 #include <mc/world/actor/player/Player.h>
 #include <memory>
@@ -40,12 +41,8 @@ private:
     // 执行方块旋转功能
     void rotateBlock(Player* player, const BlockPos& pos, const Block& block);
 
-    // 各种红石元件的旋转方法
-    static bool rotateObserver(Dimension* dimension, const BlockPos& pos, const Block& block);
-    static bool rotatePiston(Dimension* dimension, const BlockPos& pos, const Block& block);
-    static bool rotateHopper(Dimension* dimension, const BlockPos& pos, const Block& block);
-    static bool rotateDispenser(Dimension* dimension, const BlockPos& pos, const Block& block);
-    static bool rotateRepeater(Dimension* dimension, const BlockPos& pos, const Block& block);
+    // 执行实际的旋转操作
+    static bool performRotation(BlockSource& blockSource, const BlockPos& pos, const Block& block);
 };
 
 } // namespace carpet_mod_for_ll

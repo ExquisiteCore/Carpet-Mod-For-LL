@@ -1,0 +1,99 @@
+name: Auto Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auto-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate version from timestamp
+        shell: bash
+        run: |
+          VERSION=$(date -u +"%Y.%m.%d.%H%M")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Generated version: $VERSION"
+
+      - name: Update tooth.json with version
+        shell: bash
+        run: |
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" tooth.json
+          echo "Updated tooth.json version to: $VERSION"
+
+      - name: Setup XMake
+        uses: xmake-io/github-action-setup-xmake@v1
+
+      - name: Cache XMake packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/.xmake
+          key: xmake-${{ hashFiles('xmake.lua') }}
+          restore-keys: |
+            xmake-
+
+      - name: Update XMake repository
+        run: |
+          xmake repo -u
+
+      - name: Configure build
+        run: |
+          xmake f -a x64 -m release -p windows -y
+        env:
+          MOD_VERSION: ${{ env.VERSION }}
+
+      - name: Build project
+        run: |
+          xmake -w -y
+        env:
+          MOD_VERSION: ${{ env.VERSION }}
+
+      - name: Create and push tag
+        shell: bash
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add tooth.json
+          git commit -m "Auto update version to $VERSION" || echo "No changes to commit"
+          git tag -a "$VERSION" -m "Auto release version $VERSION"
+          git push origin "$VERSION"
+
+      - name: Prepare release artifacts
+        shell: bash
+        run: |
+          mkdir -p release-temp
+          cp CHANGELOG.md LICENSE README.md release-temp/ 2>/dev/null || echo "Some files not found, skipping"
+          cp -r bin/* release-temp/ 2>/dev/null || echo "Bin directory not found"
+
+      - name: Create release zip
+        shell: bash
+        run: |
+          cd release-temp
+          zip -r "../${{ github.event.repository.name }}-$VERSION-windows-x64.zip" .
+
+      - name: Extract release notes from CHANGELOG
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v2
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          body: |
+            Auto-generated release for version ${{ env.VERSION }}
+            
+            ${{ steps.extract-release-notes.outputs.release_notes }}
+          files: |
+            ${{ github.event.repository.name }}-${{ env.VERSION }}-windows-x64.zip
+          draft: false
+          prerelease: false

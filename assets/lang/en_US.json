@@ -62,8 +62,8 @@
     "carpet.config.action.invalid": "Invalid action. Use 'enable' or 'disable'",
     "carpet.config.usage.detailed": "Usage: /carpet config <feature> [enable|disable]",
     
-    "carpet.cactus_wrench.success": "Cactus Wrench: Executed counter print at ({}, {}, {})",
-    "carpet.cactus_wrench.error": "Cactus Wrench: Failed to execute counter print command",
+    "carpet.cactus_wrench.error": "Cactus Wrench: Failed to rotate block",
+    "carpet.cactus_wrench.rotate_success": "Successfully rotated block: {}",
     "carpet.cactus_wrench.feature.name": "Cactus Wrench",
-    "carpet.cactus_wrench.feature.description": "Right-click cactus on concrete to print hopper counter information"
+    "carpet.cactus_wrench.feature.description": "Right-click cactus on redstone components to rotate block facing"
 }

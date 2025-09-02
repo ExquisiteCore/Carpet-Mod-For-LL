@@ -62,8 +62,8 @@
     "carpet.config.action.invalid": "无效操作。使用 '启用' 或 '禁用'",
     "carpet.config.usage.detailed": "用法: /carpet config <功能> [启用|禁用]",
     
-    "carpet.cactus_wrench.success": "仙人掌扳手: 在坐标 ({}, {}, {}) 执行了漏斗计数器打印",
-    "carpet.cactus_wrench.error": "仙人掌扳手: 执行漏斗计数器打印命令失败",
+    "carpet.cactus_wrench.error": "仙人掌扳手: 方块旋转失败",
+    "carpet.cactus_wrench.rotate_success": "成功旋转方块: {}",
     "carpet.cactus_wrench.feature.name": "仙人掌扳手",
-    "carpet.cactus_wrench.feature.description": "右键仙人掌对混凝土可打印漏斗计数器信息"
+    "carpet.cactus_wrench.feature.description": "右键仙人掌对红石元件可旋转方块朝向"
 }

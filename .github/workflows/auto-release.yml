@@ -68,17 +68,19 @@ jobs:
           git push origin "$VERSION"
 
       - name: Prepare release artifacts
-        shell: bash
+        shell: powershell
         run: |
-          mkdir -p release-temp
-          cp CHANGELOG.md LICENSE README.md release-temp/ 2>/dev/null || echo "Some files not found, skipping"
-          cp -r bin/* release-temp/ 2>/dev/null || echo "Bin directory not found"
+          New-Item -ItemType Directory -Force -Path "release-temp"
+          Copy-Item -Path "CHANGELOG.md", "LICENSE", "README.md" -Destination "release-temp" -ErrorAction SilentlyContinue
+          if (Test-Path "bin") {
+            Copy-Item -Path "bin\*" -Destination "release-temp" -Recurse -Force
+          }
 
-      - name: Create release zip
-        shell: bash
+      - name: Create release zip  
+        shell: powershell
         run: |
-          cd release-temp
-          zip -r "../${{ github.event.repository.name }}-$VERSION-windows-x64.zip" .
+          Compress-Archive -Path "release-temp\*" -DestinationPath "${{ github.event.repository.name }}-$env:VERSION-windows-x64.zip" -Force
+          Write-Output "Created zip file: ${{ github.event.repository.name }}-$env:VERSION-windows-x64.zip"
 
       - name: Extract release notes from CHANGELOG
         id: extract-release-notes

@@ -91,7 +91,6 @@ void ProfilerModule::stopProfiling() {
     mod->getLogger().info("Profiling stopped");
     showProfileResults();
 }
-}
 
 void ProfilerModule::showProfileResults() {
     switch (currentMode) {

@@ -1,4 +1,5 @@
 #include "TickModule.h"
+#include "TickHookManager.h"
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/mod/NativeMod.h>
 #include <numeric>
@@ -13,24 +14,34 @@ TickModule::TickModule() : BaseModule("TickControl", "carpet.module.tick.descrip
 bool TickModule::onEnable() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("TickModule enabled");
-    // TODO: Hook ServerLevel::tick
+    
+    // Initialize TickHookManager
+    TickHookManager::initialize();
+    TickHookManager::setTickEnabled(true);
+    
     return true;
 }
 
 bool TickModule::onDisable() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("TickModule disabled");
+    
     resetTick();
-    // TODO: Unhook
+    
+    // Cleanup TickHookManager
+    TickHookManager::setTickEnabled(false);
+    TickHookManager::cleanup();
+    
     return true;
 }
 
 void TickModule::freezeTick() {
     if (currentStatus != TickStatus::Frozen) {
         currentStatus = TickStatus::Frozen;
-        auto mod      = ll::mod::NativeMod::current();
+        TickHookManager::setFrozen(true);
+        
+        auto mod = ll::mod::NativeMod::current();
         mod->getLogger().info("World ticking frozen");
-        // TODO: Implement freeze logic
     }
 }
 
@@ -39,9 +50,16 @@ void TickModule::resetTick() {
     speedMultiplier = 1;
     targetTicks     = 0;
     remainingTicks  = 0;
-    auto mod        = ll::mod::NativeMod::current();
+    
+    // Reset all states in TickHookManager
+    TickHookManager::setFrozen(false);
+    TickHookManager::setSpeedMultiplier(1);
+    TickHookManager::setSlowdownDivider(1);
+    TickHookManager::setForwarding(false);
+    TickHookManager::setWarping(false);
+    
+    auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("World ticking reset to normal");
-    // TODO: Implement reset logic
 }
 
 void TickModule::forwardTick(int ticks) {
@@ -54,9 +72,11 @@ void TickModule::forwardTick(int ticks) {
     currentStatus  = TickStatus::Forwarding;
     targetTicks    = ticks;
     remainingTicks = ticks;
-    auto mod       = ll::mod::NativeMod::current();
+    
+    TickHookManager::setForwarding(true, ticks);
+    
+    auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Forwarding {} ticks", ticks);
-    // TODO: Implement forward logic
 }
 
 void TickModule::warpTick(int ticks) {
@@ -69,9 +89,11 @@ void TickModule::warpTick(int ticks) {
     currentStatus  = TickStatus::Warping;
     targetTicks    = ticks;
     remainingTicks = ticks;
-    auto mod       = ll::mod::NativeMod::current();
+    
+    TickHookManager::setWarping(true, ticks);
+    
+    auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Warping {} ticks", ticks);
-    // TODO: Implement warp logic (no rendering)
 }
 
 void TickModule::accelerateTick(int multiplier) {
@@ -83,9 +105,11 @@ void TickModule::accelerateTick(int multiplier) {
 
     currentStatus   = TickStatus::Accelerated;
     speedMultiplier = multiplier;
-    auto mod        = ll::mod::NativeMod::current();
+    
+    TickHookManager::setSpeedMultiplier(multiplier);
+    
+    auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Accelerating world {}x", multiplier);
-    // TODO: Implement acceleration logic
 }
 
 void TickModule::slowDownTick(int divider) {
@@ -97,9 +121,11 @@ void TickModule::slowDownTick(int divider) {
 
     currentStatus   = TickStatus::SlowedDown;
     speedMultiplier = divider;
-    auto mod        = ll::mod::NativeMod::current();
+    
+    TickHookManager::setSlowdownDivider(divider);
+    
+    auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Slowing down world by {}", divider);
-    // TODO: Implement slowdown logic
 }
 
 void TickModule::queryTickStatus() {
@@ -157,6 +183,32 @@ double TickModule::getTPS() const {
         return 20.0;
     }
     return std::min(20.0, 1000.0 / avgMSPT);
+}
+
+bool TickModule::shouldTickThisFrame() {
+    // For slowdown mode, only tick every N frames
+    static int frameCounter = 0;
+    if (currentStatus == TickStatus::SlowedDown) {
+        frameCounter++;
+        if (frameCounter >= speedMultiplier) {
+            frameCounter = 0;
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
+void TickModule::onTickExecuted() {
+    // Update remaining ticks for forward/warp modes
+    if (currentStatus == TickStatus::Forwarding || currentStatus == TickStatus::Warping) {
+        remainingTicks--;
+        if (remainingTicks <= 0) {
+            auto mod = ll::mod::NativeMod::current();
+            mod->getLogger().info("Completed {} ticks", targetTicks);
+            resetTick();
+        }
+    }
 }
 
 } // namespace carpet_mod_for_ll

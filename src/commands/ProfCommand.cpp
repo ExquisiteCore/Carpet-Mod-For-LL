@@ -12,13 +12,7 @@ ProfCommand::ProfCommand()
 }
 
 bool ProfCommand::registerCommand() {
-    // Get profiler module
-    profilerModule = dynamic_cast<ProfilerModule*>(ModuleManager::getModule("Profiler"));
-    if (!profilerModule) {
-        auto mod = ll::mod::NativeMod::current();
-        mod->getLogger().error("ProfilerModule not found!");
-        return false;
-    }
+    // Don't get module here, get it lazily in handlers
     
     // /prof or /prof normal [ticks]
     addSubCommand({
@@ -76,8 +70,21 @@ bool ProfCommand::registerCommand() {
     return BaseCommand::registerCommand();
 }
 
+ProfilerModule* ProfCommand::getProfilerModule() const {
+    if (!profilerModule) {
+        profilerModule = dynamic_cast<ProfilerModule*>(ModuleManager::getModule("Profiler"));
+    }
+    return profilerModule;
+}
+
 void ProfCommand::handleNormal(const CommandContext& ctx) {
-    if (!profilerModule->isEnabled()) {
+    auto* module = getProfilerModule();
+    if (!module) {
+        ctx.error("Module Profiler not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("Profiler"));
         return;
     }
@@ -92,12 +99,18 @@ void ProfCommand::handleNormal(const CommandContext& ctx) {
         }
     }
     
-    profilerModule->profileNormal(ticks);
+    module->profileNormal(ticks);
     ctx.success("carpet.command.prof.normal.start"_tr(ticks));
 }
 
 void ProfCommand::handleChunk(const CommandContext& ctx) {
-    if (!profilerModule->isEnabled()) {
+    auto* module = getProfilerModule();
+    if (!module) {
+        ctx.error("Module Profiler not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("Profiler"));
         return;
     }
@@ -112,12 +125,18 @@ void ProfCommand::handleChunk(const CommandContext& ctx) {
         }
     }
     
-    profilerModule->profileChunk(ticks);
+    module->profileChunk(ticks);
     ctx.success("carpet.command.prof.chunk.start"_tr(ticks));
 }
 
 void ProfCommand::handleEntity(const CommandContext& ctx) {
-    if (!profilerModule->isEnabled()) {
+    auto* module = getProfilerModule();
+    if (!module) {
+        ctx.error("Module Profiler not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("Profiler"));
         return;
     }
@@ -132,12 +151,18 @@ void ProfCommand::handleEntity(const CommandContext& ctx) {
         }
     }
     
-    profilerModule->profileEntity(ticks);
+    module->profileEntity(ticks);
     ctx.success("carpet.command.prof.entity.start"_tr(ticks));
 }
 
 void ProfCommand::handlePendingTick(const CommandContext& ctx) {
-    if (!profilerModule->isEnabled()) {
+    auto* module = getProfilerModule();
+    if (!module) {
+        ctx.error("Module Profiler not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("Profiler"));
         return;
     }
@@ -152,12 +177,18 @@ void ProfCommand::handlePendingTick(const CommandContext& ctx) {
         }
     }
     
-    profilerModule->profilePendingTick(ticks);
+    module->profilePendingTick(ticks);
     ctx.success("carpet.command.prof.pt.start"_tr(ticks));
 }
 
 void ProfCommand::handleMSPT(const CommandContext& ctx) {
-    if (!profilerModule->isEnabled()) {
+    auto* module = getProfilerModule();
+    if (!module) {
+        ctx.error("Module Profiler not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("Profiler"));
         return;
     }
@@ -172,17 +203,23 @@ void ProfCommand::handleMSPT(const CommandContext& ctx) {
         }
     }
     
-    profilerModule->profileMSPT(ticks);
+    module->profileMSPT(ticks);
     ctx.success("carpet.command.prof.mspt.start"_tr(ticks));
 }
 
 void ProfCommand::handleStop(const CommandContext& ctx) {
-    if (!profilerModule->isEnabled()) {
+    auto* module = getProfilerModule();
+    if (!module) {
+        ctx.error("Module Profiler not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("Profiler"));
         return;
     }
     
-    profilerModule->stopProfiling();
+    module->stopProfiling();
     ctx.success("carpet.command.prof.stop.success"_tr());
 }
 

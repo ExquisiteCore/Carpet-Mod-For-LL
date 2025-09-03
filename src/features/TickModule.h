@@ -12,6 +12,8 @@ namespace carpet_mod_for_ll {
  */
 class TickModule : public BaseModule {
 public:
+    enum class TickStatus { Normal, Frozen, Forwarding, Warping, Accelerated, SlowedDown };
+    
     TickModule();
     ~TickModule() override = default;
 
@@ -28,9 +30,14 @@ public:
     void queryTickStatus();
     void showMSPT();
 
-private:
-    enum class TickStatus { Normal, Frozen, Forwarding, Warping, Accelerated, SlowedDown };
+    // 获取当前状态（供TickHookManager查询）
+    [[nodiscard]] TickStatus getCurrentStatus() const { return currentStatus; }
+    [[nodiscard]] int        getSpeedMultiplier() const { return speedMultiplier; }
+    [[nodiscard]] int        getRemainingTicks() const { return remainingTicks; }
+    bool                     shouldTickThisFrame(); // 用于减速模式
+    void                     onTickExecuted();      // 每执行一个tick后调用
 
+private:
     TickStatus currentStatus   = TickStatus::Normal;
     int        targetTicks     = 0;
     int        remainingTicks  = 0;

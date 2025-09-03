@@ -12,7 +12,10 @@ public:
     bool registerCommand() override;
     
 private:
-    TickModule* tickModule = nullptr;
+    mutable TickModule* tickModule = nullptr;
+    
+    // Helper to get module lazily
+    TickModule* getTickModule() const;
     
     // 子命令处理器
     void handleFreeze(const CommandContext& ctx);

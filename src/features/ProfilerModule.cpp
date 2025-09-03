@@ -1,4 +1,5 @@
 #include "ProfilerModule.h"
+#include "TickHookManager.h"
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/mod/NativeMod.h>
 #include <algorithm>
@@ -14,20 +15,27 @@ ProfilerModule::ProfilerModule()
 bool ProfilerModule::onEnable() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("ProfilerModule enabled");
-    // TODO: Setup hooks for profiling
+    
+    // Enable profiling in TickHookManager
+    TickHookManager::enableProfiling(true);
+    
     return true;
 }
 
 bool ProfilerModule::onDisable() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("ProfilerModule disabled");
+    
     stopProfiling();
-    // TODO: Remove hooks
+    
+    // Disable profiling in TickHookManager
+    TickHookManager::enableProfiling(false);
+    
     return true;
 }
 
 void ProfilerModule::startProfiling(int ticks, const std::string& mode) {
-    if (isProfiling) {
+    if (isProfiling_) {
         auto mod = ll::mod::NativeMod::current();
         mod->getLogger().warn("Profiling already in progress");
         return;
@@ -42,44 +50,47 @@ void ProfilerModule::startProfiling(int ticks, const std::string& mode) {
     resetProfileData();
     targetTicks = ticks;
     currentTick = 0;
-    isProfiling = true;
+    isProfiling_ = true;
     
     auto mod = ll::mod::NativeMod::current();
     
     if (mode == "normal") {
         currentMode = ProfileMode::Normal;
+        TickHookManager::setProfilingMode(0);
         mod->getLogger().info("Starting normal profiling for {} ticks", ticks);
     } else if (mode == "chunk") {
         currentMode = ProfileMode::Chunk;
+        TickHookManager::setProfilingMode(1);
         mod->getLogger().info("Starting chunk profiling for {} ticks", ticks);
     } else if (mode == "entity") {
         currentMode = ProfileMode::Entity;
+        TickHookManager::setProfilingMode(2);
         mod->getLogger().info("Starting entity profiling for {} ticks", ticks);
     } else if (mode == "pt" || mode == "pendingtick") {
         currentMode = ProfileMode::PendingTick;
+        TickHookManager::setProfilingMode(3);
         mod->getLogger().info("Starting pending tick profiling for {} ticks", ticks);
     } else if (mode == "mspt") {
         currentMode = ProfileMode::MSPT;
+        TickHookManager::setProfilingMode(4);
         mod->getLogger().info("Starting MSPT profiling for {} ticks", ticks);
     } else {
         currentMode = ProfileMode::Normal;
+        TickHookManager::setProfilingMode(0);
         mod->getLogger().info("Starting normal profiling for {} ticks (default)", ticks);
     }
-    
-    // TODO: Enable appropriate hooks based on mode
 }
 
 void ProfilerModule::stopProfiling() {
-    if (!isProfiling) {
+    if (!isProfiling_) {
         return;
     }
     
-    isProfiling = false;
+    isProfiling_ = false;
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Profiling stopped");
     showProfileResults();
-    
-    // TODO: Disable hooks
+}
 }
 
 void ProfilerModule::showProfileResults() {
@@ -122,6 +133,41 @@ void ProfilerModule::profilePendingTick(int ticks) {
 
 void ProfilerModule::profileMSPT(int ticks) {
     startProfiling(ticks, "mspt");
+}
+
+void ProfilerModule::recordTickTime(std::chrono::microseconds time) {
+    if (!isProfiling_) return;
+    
+    overallData.addSample(time);
+    currentTick++;
+    
+    // Auto-stop when target reached
+    if (currentTick >= targetTicks) {
+        stopProfiling();
+    }
+}
+
+void ProfilerModule::recordChunkTime(int chunkX, int chunkZ, std::chrono::microseconds time) {
+    if (!isProfiling_ || currentMode != ProfileMode::Chunk) return;
+    
+    auto pos = std::make_pair(chunkX, chunkZ);
+    chunkData.chunkTimes[pos].addSample(time);
+}
+
+void ProfilerModule::recordEntityTime(const std::string& entityType, std::chrono::microseconds time) {
+    if (!isProfiling_ || currentMode != ProfileMode::Entity) return;
+    
+    entityData.entityTypes[entityType].addSample(time);
+    entityData.totalEntityCount++;
+}
+
+void ProfilerModule::recordRedstoneTime(std::chrono::microseconds time) {
+    if (!isProfiling_) return;
+    
+    // Can be used for redstone-specific profiling
+    // Currently just logs for debugging
+    auto mod = ll::mod::NativeMod::current();
+    mod->getLogger().debug("Redstone tick: {} us", time.count());
 }
 
 void ProfilerModule::ProfileData::addSample(std::chrono::microseconds time) {

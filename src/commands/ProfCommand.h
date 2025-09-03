@@ -12,7 +12,10 @@ public:
     bool registerCommand() override;
     
 private:
-    ProfilerModule* profilerModule = nullptr;
+    mutable ProfilerModule* profilerModule = nullptr;
+    
+    // Helper to get module lazily
+    ProfilerModule* getProfilerModule() const;
     
     // 子命令处理器
     void handleNormal(const CommandContext& ctx);

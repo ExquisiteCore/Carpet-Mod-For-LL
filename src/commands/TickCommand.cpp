@@ -12,13 +12,7 @@ TickCommand::TickCommand()
 }
 
 bool TickCommand::registerCommand() {
-    // Get tick module
-    tickModule = dynamic_cast<TickModule*>(ModuleManager::getModule("TickControl"));
-    if (!tickModule) {
-        auto mod = ll::mod::NativeMod::current();
-        mod->getLogger().error("TickModule not found!");
-        return false;
-    }
+    // Don't get module here, get it lazily in handlers
     
     // /tick freeze, /tick fz
     addSubCommand({
@@ -94,28 +88,53 @@ bool TickCommand::registerCommand() {
     return BaseCommand::registerCommand();
 }
 
+TickModule* TickCommand::getTickModule() const {
+    if (!tickModule) {
+        tickModule = dynamic_cast<TickModule*>(ModuleManager::getModule("TickControl"));
+    }
+    return tickModule;
+}
+
 void TickCommand::handleFreeze(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
     
-    tickModule->freezeTick();
+    module->freezeTick();
     ctx.success("carpet.command.tick.freeze.success"_tr());
 }
 
 void TickCommand::handleReset(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
     
-    tickModule->resetTick();
+    module->resetTick();
     ctx.success("carpet.command.tick.reset.success"_tr());
 }
 
 void TickCommand::handleForward(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
@@ -127,7 +146,7 @@ void TickCommand::handleForward(const CommandContext& ctx) {
     
     try {
         int ticks = std::stoi(ctx.args[1]);
-        tickModule->forwardTick(ticks);
+        module->forwardTick(ticks);
         ctx.success("carpet.command.tick.forward.success"_tr(ticks));
     } catch (const std::exception& e) {
         ctx.error("carpet.command.tick.invalid.number"_tr());
@@ -135,7 +154,13 @@ void TickCommand::handleForward(const CommandContext& ctx) {
 }
 
 void TickCommand::handleWarp(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
@@ -147,7 +172,7 @@ void TickCommand::handleWarp(const CommandContext& ctx) {
     
     try {
         int ticks = std::stoi(ctx.args[1]);
-        tickModule->warpTick(ticks);
+        module->warpTick(ticks);
         ctx.success("carpet.command.tick.warp.success"_tr(ticks));
     } catch (const std::exception& e) {
         ctx.error("carpet.command.tick.invalid.number"_tr());
@@ -155,7 +180,13 @@ void TickCommand::handleWarp(const CommandContext& ctx) {
 }
 
 void TickCommand::handleAcc(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
@@ -167,7 +198,7 @@ void TickCommand::handleAcc(const CommandContext& ctx) {
     
     try {
         int multiplier = std::stoi(ctx.args[1]);
-        tickModule->accelerateTick(multiplier);
+        module->accelerateTick(multiplier);
         ctx.success("carpet.command.tick.acc.success"_tr(multiplier));
     } catch (const std::exception& e) {
         ctx.error("carpet.command.tick.invalid.number"_tr());
@@ -175,7 +206,13 @@ void TickCommand::handleAcc(const CommandContext& ctx) {
 }
 
 void TickCommand::handleSlow(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
@@ -187,7 +224,7 @@ void TickCommand::handleSlow(const CommandContext& ctx) {
     
     try {
         int divider = std::stoi(ctx.args[1]);
-        tickModule->slowDownTick(divider);
+        module->slowDownTick(divider);
         ctx.success("carpet.command.tick.slow.success"_tr(divider));
     } catch (const std::exception& e) {
         ctx.error("carpet.command.tick.invalid.number"_tr());
@@ -195,22 +232,34 @@ void TickCommand::handleSlow(const CommandContext& ctx) {
 }
 
 void TickCommand::handleQuery(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
     
-    tickModule->queryTickStatus();
+    module->queryTickStatus();
     // Status will be printed by the module itself
 }
 
 void TickCommand::handleMSPT(const CommandContext& ctx) {
-    if (!tickModule->isEnabled()) {
+    auto* module = getTickModule();
+    if (!module) {
+        ctx.error("Module TickControl not found");
+        return;
+    }
+    
+    if (!module->isEnabled()) {
         ctx.error("carpet.error.module.disabled"_tr("TickControl"));
         return;
     }
     
-    tickModule->showMSPT();
+    module->showMSPT();
     // MSPT info will be printed by the module itself
 }
 

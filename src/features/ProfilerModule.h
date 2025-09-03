@@ -31,6 +31,13 @@ public:
     void profileEntity(int ticks);
     void profilePendingTick(int ticks);
     void profileMSPT(int ticks);
+    
+    // Hook回调接口（供TickHookManager调用）
+    bool isProfiling() const { return isProfiling_; }
+    void recordTickTime(std::chrono::microseconds time);
+    void recordChunkTime(int chunkX, int chunkZ, std::chrono::microseconds time);
+    void recordEntityTime(const std::string& entityType, std::chrono::microseconds time);
+    void recordRedstoneTime(std::chrono::microseconds time);
 
 private:
     enum class ProfileMode {
@@ -65,7 +72,7 @@ private:
     };
 
     ProfileMode currentMode = ProfileMode::None;
-    bool isProfiling = false;
+    bool isProfiling_ = false;
     int targetTicks = 0;
     int currentTick = 0;
     

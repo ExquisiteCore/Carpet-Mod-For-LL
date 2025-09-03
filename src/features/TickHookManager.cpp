@@ -1,5 +1,10 @@
 #include "TickHookManager.h"
 #include <ll/api/mod/NativeMod.h>
+#include <ll/api/memory/Hook.h>
+#include <mc/world/level/Level.h>
+#include <mc/server/ServerLevel.h>
+#include <mc/world/level/dimension/Dimension.h>
+#include <chrono>
 
 namespace carpet_mod_for_ll {
 
@@ -15,6 +20,92 @@ int TickHookManager::targetTicks = 0;
 int TickHookManager::remainingTicks = 0;
 bool TickHookManager::profilingEnabled = false;
 int TickHookManager::profilingMode = 0;
+
+// Hook定义 - Level::tick()
+LL_TYPE_INSTANCE_HOOK(
+    LevelTickHook,
+    ll::memory::HookPriority::Normal,
+    Level,
+    &Level::$tick,  // 使用$前缀来hook虚函数
+    void
+) {
+    // 如果tick被禁用或冻结，直接返回
+    if (!TickHookManager::tickEnabled || TickHookManager::frozen) {
+        return;
+    }
+    
+    // 处理减速模式
+    if (TickHookManager::slowdownDivider > 1) {
+        TickHookManager::slowdownCounter++;
+        if (TickHookManager::slowdownCounter < TickHookManager::slowdownDivider) {
+            return; // 跳过这一帧
+        }
+        TickHookManager::slowdownCounter = 0;
+    }
+    
+    // 记录tick开始时间
+    auto startTime = std::chrono::high_resolution_clock::now();
+    
+    // 处理加速模式 - 执行多次tick
+    int tickCount = 1;
+    if (TickHookManager::speedMultiplier > 1) {
+        tickCount = TickHookManager::speedMultiplier;
+    }
+    
+    // 处理forwarding/warping模式
+    if (TickHookManager::forwarding || TickHookManager::warping) {
+        if (TickHookManager::warping) {
+            // Warp模式：尽可能快地执行多个tick
+            tickCount = std::min(TickHookManager::remainingTicks, 100); // 每帧最多100个tick
+        }
+        // Forward模式使用正常速度
+    }
+    
+    // 执行tick
+    for (int i = 0; i < tickCount; i++) {
+        origin(); // 调用原始的tick函数
+        
+        // 更新forwarding/warping计数
+        if (TickHookManager::forwarding || TickHookManager::warping) {
+            TickHookManager::remainingTicks--;
+            if (TickHookManager::remainingTicks <= 0) {
+                auto mod = ll::mod::NativeMod::current();
+                mod->getLogger().info("Completed {} ticks", TickHookManager::targetTicks);
+                TickHookManager::forwarding = false;
+                TickHookManager::warping = false;
+                break;
+            }
+        }
+    }
+    
+    // 记录tick结束时间
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+    TickHookManager::onTickEnd(elapsed);
+}
+
+// Hook定义 - Dimension::tickRedstone()  
+LL_TYPE_INSTANCE_HOOK(
+    DimensionTickRedstoneHook,
+    ll::memory::HookPriority::Normal,
+    Dimension,
+    &Dimension::$tickRedstone,  // 使用$前缀来hook虚函数
+    void
+) {
+    // 如果tick被冻结，跳过红石tick
+    if (TickHookManager::frozen) {
+        return;
+    }
+    
+    auto startTime = std::chrono::high_resolution_clock::now();
+    origin();
+    auto endTime = std::chrono::high_resolution_clock::now();
+    
+    if (TickHookManager::profilingEnabled) {
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+        TickHookManager::onRedsttoneTick(elapsed);
+    }
+}
 
 void TickHookManager::initialize() {
     auto mod = ll::mod::NativeMod::current();
@@ -40,10 +131,10 @@ void TickHookManager::setTickEnabled(bool enabled) {
     mod->getLogger().debug("TickHookManager: Tick enabled = {}", enabled);
 }
 
-void TickHookManager::setFrozen(bool frozen) {
-    TickHookManager::frozen = frozen;
+void TickHookManager::setFrozen(bool isFrozen) {
+    frozen = isFrozen;
     auto mod = ll::mod::NativeMod::current();
-    mod->getLogger().debug("TickHookManager: Frozen = {}", frozen);
+    mod->getLogger().debug("TickHookManager: Frozen = {}", isFrozen);
 }
 
 void TickHookManager::setSpeedMultiplier(int multiplier) {
@@ -59,29 +150,29 @@ void TickHookManager::setSlowdownDivider(int divider) {
     mod->getLogger().debug("TickHookManager: Slowdown divider = {}", divider);
 }
 
-void TickHookManager::setForwarding(bool forwarding, int ticks) {
-    TickHookManager::forwarding = forwarding;
-    if (forwarding) {
+void TickHookManager::setForwarding(bool isForwarding, int ticks) {
+    forwarding = isForwarding;
+    if (isForwarding) {
         targetTicks = ticks;
         remainingTicks = ticks;
     }
     auto mod = ll::mod::NativeMod::current();
-    mod->getLogger().debug("TickHookManager: Forwarding = {}, ticks = {}", forwarding, ticks);
+    mod->getLogger().debug("TickHookManager: Forwarding = {}, ticks = {}", isForwarding, ticks);
 }
 
-void TickHookManager::setWarping(bool warping, int ticks) {
-    TickHookManager::warping = warping;
-    if (warping) {
+void TickHookManager::setWarping(bool isWarping, int ticks) {
+    warping = isWarping;
+    if (isWarping) {
         targetTicks = ticks;
         remainingTicks = ticks;
     }
     auto mod = ll::mod::NativeMod::current();
-    mod->getLogger().debug("TickHookManager: Warping = {}, ticks = {}", warping, ticks);
+    mod->getLogger().debug("TickHookManager: Warping = {}, ticks = {}", isWarping, ticks);
 }
 
 bool TickHookManager::isTickExecuting() {
-    // TODO: Implement based on actual hook state
-    return false;
+    // 返回是否正在执行tick
+    return !frozen && tickEnabled;
 }
 
 int TickHookManager::getCurrentTickCount() {
@@ -101,44 +192,45 @@ void TickHookManager::setProfilingMode(int mode) {
 }
 
 void TickHookManager::onTickStart() {
-    // TODO: This will be called by hook
-    // For now, just log
+    // 当tick开始时调用
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().debug("TickHookManager: Tick started");
 }
 
 void TickHookManager::onTickEnd(std::chrono::microseconds elapsed) {
-    // TODO: This will be called by hook
-    // Update remaining ticks for forward/warp
-    if (forwarding || warping) {
-        remainingTicks--;
-        if (remainingTicks <= 0) {
-            forwarding = false;
-            warping = false;
-            auto mod = ll::mod::NativeMod::current();
-            mod->getLogger().info("TickHookManager: Completed {} ticks", targetTicks);
-        }
+    // 记录MSPT数据
+    if (profilingEnabled) {
+        double mspt = elapsed.count() / 1000.0;
+        auto mod = ll::mod::NativeMod::current();
+        mod->getLogger().debug("TickHookManager: Tick elapsed = {:.2f}ms", mspt);
     }
+    
+    // 更新forwarding/warping状态已在Hook中处理
 }
 
 void TickHookManager::onChunkTick(int chunkX, int chunkZ, std::chrono::microseconds elapsed) {
-    // TODO: This will be called by chunk tick hook
+    // 区块tick性能数据
     if (profilingEnabled && profilingMode == 1) { // Chunk profiling mode
-        // Data will be passed to ProfilerModule
+        // 数据将传递给ProfilerModule
+        auto mod = ll::mod::NativeMod::current();
+        mod->getLogger().debug("Chunk ({}, {}) tick: {}us", chunkX, chunkZ, elapsed.count());
     }
 }
 
 void TickHookManager::onEntityTick(const std::string& entityType, std::chrono::microseconds elapsed) {
-    // TODO: This will be called by entity tick hook
+    // 实体tick性能数据
     if (profilingEnabled && profilingMode == 2) { // Entity profiling mode
-        // Data will be passed to ProfilerModule
+        // 数据将传递给ProfilerModule
+        auto mod = ll::mod::NativeMod::current();
+        mod->getLogger().debug("Entity {} tick: {}us", entityType, elapsed.count());
     }
 }
 
 void TickHookManager::onRedsttoneTick(std::chrono::microseconds elapsed) {
-    // TODO: This will be called by redstone tick hook
+    // 红石tick性能数据
     if (profilingEnabled) {
-        // Data will be passed to ProfilerModule
+        auto mod = ll::mod::NativeMod::current();
+        mod->getLogger().debug("Redstone tick: {}us", elapsed.count());
     }
 }
 
@@ -146,19 +238,22 @@ void TickHookManager::installHooks() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("TickHookManager: Installing hooks...");
     
-    // TODO: Install hooks using new LL API
-    // This will be implemented based on the latest LeviLamina hook API
+    // 注册Hooks
+    LevelTickHook::hook();
+    DimensionTickRedstoneHook::hook();
     
-    mod->getLogger().info("TickHookManager: Hooks installed (TODO: actual implementation)");
+    mod->getLogger().info("TickHookManager: Hooks installed");
 }
 
 void TickHookManager::uninstallHooks() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("TickHookManager: Uninstalling hooks...");
     
-    // TODO: Uninstall hooks using new LL API
+    // 卸载Hooks
+    LevelTickHook::unhook();
+    DimensionTickRedstoneHook::unhook();
     
-    mod->getLogger().info("TickHookManager: Hooks uninstalled (TODO: actual implementation)");
+    mod->getLogger().info("TickHookManager: Hooks uninstalled");
 }
 
 } // namespace carpet_mod_for_ll

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../functions/BaseModule.h"
-#include <chrono>
 #include <deque>
 
 namespace carpet_mod_for_ll {
@@ -13,7 +12,7 @@ namespace carpet_mod_for_ll {
 class TickModule : public BaseModule {
 public:
     enum class TickStatus { Normal, Frozen, Forwarding, Warping, Accelerated, SlowedDown };
-    
+
     TickModule();
     ~TickModule() override = default;
 

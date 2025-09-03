@@ -4,6 +4,10 @@
 
 namespace carpet_mod_for_ll {
 
+// 前向声明Hook类（使用struct以匹配LL_TYPE_INSTANCE_HOOK宏生成的定义）
+struct LevelTickHook;
+struct DimensionTickRedstoneHook;
+
 class TickHookManager {
 public:
     // 初始化和清理
@@ -33,6 +37,10 @@ public:
     static void onEntityTick(const std::string& entityType, std::chrono::microseconds elapsed);
     static void onRedsttoneTick(std::chrono::microseconds elapsed);
     
+    // 友元类声明，允许Hook访问私有成员
+    friend struct LevelTickHook;
+    friend struct DimensionTickRedstoneHook;
+    
 private:
     // 内部状态
     static bool tickEnabled;
@@ -48,7 +56,7 @@ private:
     static bool profilingEnabled;
     static int profilingMode;
     
-    // Hook实现（TODO：根据LL新API实现）
+    // Hook实现
     static void installHooks();
     static void uninstallHooks();
 };

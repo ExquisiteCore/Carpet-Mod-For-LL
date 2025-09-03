@@ -1,5 +1,7 @@
 #include "TickModule.h"
 #include "TickHookManager.h"
+#include "ProfilerModule.h"
+#include "../functions/BaseModule.h"
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/mod/NativeMod.h>
 #include <numeric>
@@ -200,7 +202,7 @@ bool TickModule::shouldTickThisFrame() {
 }
 
 void TickModule::onTickExecuted() {
-    // Update remaining ticks for forward/warp modes
+    // 更新remaining ticks for forward/warp modes
     if (currentStatus == TickStatus::Forwarding || currentStatus == TickStatus::Warping) {
         remainingTicks--;
         if (remainingTicks <= 0) {
@@ -208,6 +210,14 @@ void TickModule::onTickExecuted() {
             mod->getLogger().info("Completed {} ticks", targetTicks);
             resetTick();
         }
+    }
+    
+    // 同时更新MSPT历史记录（如果有ProfilerModule提供的数据）
+    auto* profilerModule = dynamic_cast<ProfilerModule*>(
+        ModuleManager::getModule("Profiler")
+    );
+    if (profilerModule && profilerModule->isProfiling()) {
+        // ProfilerModule会自动记录MSPT数据
     }
 }
 

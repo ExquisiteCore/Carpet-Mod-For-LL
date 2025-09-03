@@ -21,10 +21,6 @@
     "Profiler": {
       "enabled": true,
       "description": "Server performance profiler"
-    },
-    "villageInfo": {
-      "enabled": false,
-      "description": "Show village information"
     }
   }
 }

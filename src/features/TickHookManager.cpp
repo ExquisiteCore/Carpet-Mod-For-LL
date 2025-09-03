@@ -1,4 +1,6 @@
 #include "TickHookManager.h"
+#include "ProfilerModule.h"
+#include "../functions/BaseModule.h"
 #include <ll/api/mod/NativeMod.h>
 #include <ll/api/memory/Hook.h>
 #include <mc/world/level/Level.h>
@@ -203,6 +205,14 @@ void TickHookManager::onTickEnd(std::chrono::microseconds elapsed) {
         double mspt = elapsed.count() / 1000.0;
         auto mod = ll::mod::NativeMod::current();
         mod->getLogger().debug("TickHookManager: Tick elapsed = {:.2f}ms", mspt);
+        
+        // 将数据传递给ProfilerModule
+        auto* profilerModule = dynamic_cast<ProfilerModule*>(
+            ModuleManager::getModule("Profiler")
+        );
+        if (profilerModule && profilerModule->isProfiling()) {
+            profilerModule->recordTickTime(elapsed);
+        }
     }
     
     // 更新forwarding/warping状态已在Hook中处理
@@ -211,18 +221,32 @@ void TickHookManager::onTickEnd(std::chrono::microseconds elapsed) {
 void TickHookManager::onChunkTick(int chunkX, int chunkZ, std::chrono::microseconds elapsed) {
     // 区块tick性能数据
     if (profilingEnabled && profilingMode == 1) { // Chunk profiling mode
-        // 数据将传递给ProfilerModule
         auto mod = ll::mod::NativeMod::current();
         mod->getLogger().debug("Chunk ({}, {}) tick: {}us", chunkX, chunkZ, elapsed.count());
+        
+        // 将数据传递给ProfilerModule
+        auto* profilerModule = dynamic_cast<ProfilerModule*>(
+            ModuleManager::getModule("Profiler")
+        );
+        if (profilerModule && profilerModule->isProfiling()) {
+            profilerModule->recordChunkTime(chunkX, chunkZ, elapsed);
+        }
     }
 }
 
 void TickHookManager::onEntityTick(const std::string& entityType, std::chrono::microseconds elapsed) {
     // 实体tick性能数据
     if (profilingEnabled && profilingMode == 2) { // Entity profiling mode
-        // 数据将传递给ProfilerModule
         auto mod = ll::mod::NativeMod::current();
         mod->getLogger().debug("Entity {} tick: {}us", entityType, elapsed.count());
+        
+        // 将数据传递给ProfilerModule
+        auto* profilerModule = dynamic_cast<ProfilerModule*>(
+            ModuleManager::getModule("Profiler")
+        );
+        if (profilerModule && profilerModule->isProfiling()) {
+            profilerModule->recordEntityTime(entityType, elapsed);
+        }
     }
 }
 
@@ -231,6 +255,14 @@ void TickHookManager::onRedsttoneTick(std::chrono::microseconds elapsed) {
     if (profilingEnabled) {
         auto mod = ll::mod::NativeMod::current();
         mod->getLogger().debug("Redstone tick: {}us", elapsed.count());
+        
+        // 将数据传递给ProfilerModule
+        auto* profilerModule = dynamic_cast<ProfilerModule*>(
+            ModuleManager::getModule("Profiler")
+        );
+        if (profilerModule && profilerModule->isProfiling()) {
+            profilerModule->recordRedstoneTime(elapsed);
+        }
     }
 }
 

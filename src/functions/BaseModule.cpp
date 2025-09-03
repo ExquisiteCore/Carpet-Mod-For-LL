@@ -84,13 +84,19 @@ void ModuleManager::initializeAllModules() {
 
 void ModuleManager::updateModulesFromConfig() {
     auto& configManager = ConfigManager::getInstance();
-
+    auto mod = ll::mod::NativeMod::current();
+    
+    mod->getLogger().info("Updating modules from config...");
     for (auto& module : modules) {
         bool shouldBeEnabled = configManager.isFeatureEnabled(module->getName());
+        mod->getLogger().info("Module '{}': config says enabled={}, current state={}", 
+            module->getName(), shouldBeEnabled, module->isEnabled());
 
         if (shouldBeEnabled && !module->isEnabled()) {
+            mod->getLogger().info("Enabling module '{}'", module->getName());
             module->enable();
         } else if (!shouldBeEnabled && module->isEnabled()) {
+            mod->getLogger().info("Disabling module '{}'", module->getName());
             module->disable();
         }
     }

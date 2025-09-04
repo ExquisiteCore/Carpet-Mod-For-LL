@@ -38,16 +38,16 @@ bool ConfigManager::load() {
     if (!ll::config::loadConfig(config, configPath)) {
         mod->getLogger().warn("Cannot load configurations from {}", configPath.string());
         mod->getLogger().info("Saving default configurations");
-        
+
         resetToDefaults();
-        
+
         if (!ll::config::saveConfig(config, configPath)) {
             mod->getLogger().error("Cannot save default configurations to {}", configPath.string());
             return false;
         }
     } else {
         mod->getLogger().info("Configuration loaded successfully from {}", configPath.string());
-        
+
         // 验证配置
         if (!validateConfig()) {
             mod->getLogger().warn("Configuration validation failed, using defaults");
@@ -84,43 +84,94 @@ bool ConfigManager::reload() {
 
 // 便捷访问方法
 bool ConfigManager::isFeatureEnabled(const std::string& name) const {
-    // 由于当前配置系统还没有完全实现动态功能列表
-    // 暂时默认所有已注册的模块都是启用的
-    // TODO: 从配置文件动态读取功能状态
-    
+    // 根据功能名称返回对应的启用状态
     if (name == "CactusWrench" || name == "cactus_wrench") {
-        return true; // 默认启用
+        return config.features.cactusWrench.enabled;
     }
     if (name == "TickControl" || name == "tick_control") {
-        return true; // 默认启用
+        return config.features.tickControl.enabled;
     }
     if (name == "Profiler" || name == "profiler") {
-        return true; // 默认启用
+        return config.features.profiler.enabled;
     }
-    
-    // 默认返回true，让模块能够启用
-    return true;
+
+    // 对于未知功能，默认禁用以确保安全
+    return false;
 }
 
 bool ConfigManager::enableFeature(const std::string& name) {
-    // 暂时只返回成功，因为默认都是启用的
-    // TODO: 实现真正的配置文件更新
-    save();
+    auto mod     = ll::mod::NativeMod::current();
+    bool changed = false;
+
+    // 更新配置中的功能状态
+    if (name == "CactusWrench" || name == "cactus_wrench") {
+        if (!config.features.cactusWrench.enabled) {
+            config.features.cactusWrench.enabled = true;
+            changed                              = true;
+        }
+    } else if (name == "TickControl" || name == "tick_control") {
+        if (!config.features.tickControl.enabled) {
+            config.features.tickControl.enabled = true;
+            changed                             = true;
+        }
+    } else if (name == "Profiler" || name == "profiler") {
+        if (!config.features.profiler.enabled) {
+            config.features.profiler.enabled = true;
+            changed                          = true;
+        }
+    } else {
+        mod->getLogger().warn("Unknown feature: {}", name);
+        return false;
+    }
+
+    if (changed) {
+        mod->getLogger().info("Enabled feature: {}", name);
+        return save();
+    }
+
+    mod->getLogger().info("Feature {} is already enabled", name);
     return true;
 }
 
 bool ConfigManager::disableFeature(const std::string& name) {
-    // 暂时只返回成功
-    // TODO: 实现真正的配置文件更新
-    save();
+    auto mod     = ll::mod::NativeMod::current();
+    bool changed = false;
+
+    // 更新配置中的功能状态
+    if (name == "CactusWrench" || name == "cactus_wrench") {
+        if (config.features.cactusWrench.enabled) {
+            config.features.cactusWrench.enabled = false;
+            changed                              = true;
+        }
+    } else if (name == "TickControl" || name == "tick_control") {
+        if (config.features.tickControl.enabled) {
+            config.features.tickControl.enabled = false;
+            changed                             = true;
+        }
+    } else if (name == "Profiler" || name == "profiler") {
+        if (config.features.profiler.enabled) {
+            config.features.profiler.enabled = false;
+            changed                          = true;
+        }
+    } else {
+        mod->getLogger().warn("Unknown feature: {}", name);
+        return false;
+    }
+
+    if (changed) {
+        mod->getLogger().info("Disabled feature: {}", name);
+        return save();
+    }
+
+    mod->getLogger().info("Feature {} is already disabled", name);
     return true;
 }
 
 void ConfigManager::resetToDefaults() {
-    config = Config{}; // 重置为默认配置
-    
-    // TODO: 设置功能的默认启用状态
-    // config.features.someFeature = false;
+    config = Config{}; // 重置为默认配置，会自动应用结构体中定义的默认值
+
+    auto mod = ll::mod::NativeMod::current();
+    mod->getLogger().info("Configuration reset to defaults");
 }
 
 bool ConfigManager::validateConfig() const {

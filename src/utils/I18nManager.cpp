@@ -59,7 +59,7 @@ std::string I18nManager::tr(const std::string& key) const {
             }
         }
     }
-    
+
     // 再回退到英文
     if (currentLocale != "en_US") {
         auto defaultIt = translations.find("en_US");
@@ -107,7 +107,7 @@ std::vector<std::string> I18nManager::getAvailableLanguages() const {
 bool I18nManager::reload() {
     try {
         auto mod     = ll::mod::NativeMod::current();
-        auto langDir = mod->getModDir() / "assets" / "lang";
+        auto langDir = mod->getModDir() / "lang";
 
         // 清空现有翻译
         translations.clear();
@@ -126,20 +126,20 @@ bool I18nManager::reload() {
         if (translations.find("zh_CN") == translations.end()) {
             mod->getLogger().warn("No zh_CN language file found, creating minimal fallback");
             translations["zh_CN"] = {
-                {"carpet.error.permission",   "您没有权限使用此命令"},
-                {"carpet.error.invalid_args", "无效参数: {}"},
-                {"carpet.error.player_only",  "此命令只能由玩家使用"},
+                {"carpet.error.permission",   "您没有权限使用此命令"  },
+                {"carpet.error.invalid_args", "无效参数: {}"          },
+                {"carpet.error.player_only",  "此命令只能由玩家使用"  },
                 {"carpet.error.console_only", "此命令只能从控制台使用"}
             };
         }
-        
+
         if (translations.find("en_US") == translations.end()) {
             mod->getLogger().warn("No en_US language file found, creating minimal fallback");
             translations["en_US"] = {
                 {"carpet.error.permission",   "You don't have permission to use this command"},
-                {"carpet.error.invalid_args", "Invalid argument: {}"},
-                {"carpet.error.player_only",  "This command can only be used by players"},
-                {"carpet.error.console_only", "This command can only be used from console"}
+                {"carpet.error.invalid_args", "Invalid argument: {}"                         },
+                {"carpet.error.player_only",  "This command can only be used by players"     },
+                {"carpet.error.console_only", "This command can only be used from console"   }
             };
         }
 

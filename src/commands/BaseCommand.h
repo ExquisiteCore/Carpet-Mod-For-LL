@@ -5,12 +5,16 @@
 #include <vector>
 #include <memory>
 
-
 // 前向声明
 class CommandOrigin;
 class CommandOutput;
 
 namespace carpet_mod_for_ll {
+
+// 命令参数结构
+struct IntParam {
+    int value = 0;
+};
 
 // 命令权限级别 (与 CommandPermissionLevel 对应)
 enum class CommandPermission {

@@ -81,6 +81,16 @@ bool BaseCommand::registerCommand() {
                     execute(ctx);
                 }
             );
+            
+            // 注册别名
+            for (const auto& alias : subCmd.aliases) {
+                command.overload().text(alias).execute(
+                    [this, subCmdName = subCmd.name](CommandOrigin const& origin, CommandOutput& output) {
+                        CommandContext ctx{&origin, &output, {subCmdName}};
+                        execute(ctx);
+                    }
+                );
+            }
         }
         
         mod->getLogger().info("Command '{}' registered successfully", commandName);

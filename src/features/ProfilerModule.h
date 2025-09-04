@@ -32,11 +32,11 @@ public:
     void profileMSPT(int ticks);
 
     // Hook回调接口（供TickHookManager调用）
-    bool isProfiling() const { return isProfiling_; }
-    void recordTickTime(std::chrono::microseconds time);
-    void recordChunkTime(int chunkX, int chunkZ, std::chrono::microseconds time);
-    void recordEntityTime(const std::string& entityType, std::chrono::microseconds time);
-    void recordRedstoneTime(std::chrono::microseconds time);
+    [[nodiscard]] bool isProfiling() const { return isProfiling_; }
+    void               recordTickTime(std::chrono::microseconds time);
+    void               recordChunkTime(int chunkX, int chunkZ, std::chrono::microseconds time);
+    void               recordEntityTime(const std::string& entityType, std::chrono::microseconds time);
+    void               recordRedstoneTime(std::chrono::microseconds time);
 
 private:
     enum class ProfileMode { None, Normal, Chunk, Entity, PendingTick, MSPT };
@@ -47,8 +47,8 @@ private:
         std::chrono::microseconds minTime{std::chrono::microseconds::max()};
         std::chrono::microseconds maxTime{0};
 
-        void   addSample(std::chrono::microseconds time);
-        double getAverageMs() const;
+        void                 addSample(std::chrono::microseconds time);
+        [[nodiscard]] double getAverageMs() const;
     };
 
     struct ChunkProfileData {

@@ -4,9 +4,6 @@
 #include "commands/CarpetCommand.h"
 #include "commands/ProfCommand.h"
 #include "commands/TickCommand.h"
-#include "features/CactusWrench.h"
-#include "features/ProfilerModule.h"
-#include "features/TickModule.h"
 #include "functions/BaseModule.h"
 #include "utils/ConfigManager.h"
 #include "utils/I18nManager.h"
@@ -46,12 +43,6 @@ bool CarpetModForLl::enable() {
     getSelf().getLogger().info("Enabling Carpet Mod For LL...");
 
     try {
-        // 先注册功能模块
-        ModuleManager::registerModule<CactusWrench>();
-        ModuleManager::registerModule<TickModule>();
-        ModuleManager::registerModule<ProfilerModule>();
-        getSelf().getLogger().info("Modules registered");
-
         // 初始化功能模块
         ModuleManager::initializeAllModules();
         getSelf().getLogger().info("Modules initialized");

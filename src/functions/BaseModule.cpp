@@ -1,5 +1,10 @@
 #include "BaseModule.h"
+
 #include "../utils/ConfigManager.h"
+#include "features/CactusWrench.h"
+#include "features/ProfilerModule.h"
+#include "features/TickModule.h"
+
 #include <ll/api/mod/NativeMod.h>
 
 namespace carpet_mod_for_ll {
@@ -20,19 +25,19 @@ bool BaseModule::enable() {
     try {
         clearError();
         if (onEnable()) {
-            state     = ModuleState::Enabled;
+            state    = ModuleState::Enabled;
             auto mod = ll::mod::NativeMod::current();
             mod->getLogger().info("Module '{}' enabled successfully", moduleName);
             return true;
         } else {
-            state     = ModuleState::Error;
+            state    = ModuleState::Error;
             auto mod = ll::mod::NativeMod::current();
             mod->getLogger().warn("Module '{}' failed to enable: {}", moduleName, lastError);
             return false;
         }
     } catch (const std::exception& e) {
         setError(e.what());
-        state     = ModuleState::Error;
+        state    = ModuleState::Error;
         auto mod = ll::mod::NativeMod::current();
         mod->getLogger().error("Exception enabling module '{}': {}", moduleName, e.what());
         return false;
@@ -47,7 +52,7 @@ bool BaseModule::disable() {
     try {
         clearError();
         if (onDisable()) {
-            state     = ModuleState::Disabled;
+            state    = ModuleState::Disabled;
             auto mod = ll::mod::NativeMod::current();
             mod->getLogger().info("Module '{}' disabled successfully", moduleName);
             return true;
@@ -73,8 +78,9 @@ void ModuleManager::initializeAllModules() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Initializing all modules...");
 
-    // TODO: 注册功能模块
-    // 示例: registerModule<YourModule>();
+    ModuleManager::registerModule<CactusWrench>();
+    ModuleManager::registerModule<TickModule>();
+    ModuleManager::registerModule<ProfilerModule>();
 
     mod->getLogger().info("All modules initialized. Total: {}", modules.size());
 
@@ -84,13 +90,17 @@ void ModuleManager::initializeAllModules() {
 
 void ModuleManager::updateModulesFromConfig() {
     auto& configManager = ConfigManager::getInstance();
-    auto mod = ll::mod::NativeMod::current();
-    
+    auto  mod           = ll::mod::NativeMod::current();
+
     mod->getLogger().info("Updating modules from config...");
     for (auto& module : modules) {
         bool shouldBeEnabled = configManager.isFeatureEnabled(module->getName());
-        mod->getLogger().info("Module '{}': config says enabled={}, current state={}", 
-            module->getName(), shouldBeEnabled, module->isEnabled());
+        mod->getLogger().info(
+            "Module '{}': config says enabled={}, current state={}",
+            module->getName(),
+            shouldBeEnabled,
+            module->isEnabled()
+        );
 
         if (shouldBeEnabled && !module->isEnabled()) {
             mod->getLogger().info("Enabling module '{}'", module->getName());

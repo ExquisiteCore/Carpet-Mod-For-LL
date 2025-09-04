@@ -85,13 +85,13 @@ bool ConfigManager::reload() {
 // 便捷访问方法
 bool ConfigManager::isFeatureEnabled(const std::string& name) const {
     // 根据功能名称返回对应的启用状态
-    if (name == "CactusWrench" || name == "cactus_wrench") {
+    if (name == "CactusWrench") {
         return config.features.cactusWrench.enabled;
     }
-    if (name == "TickControl" || name == "tick_control") {
+    if (name == "TickControl") {
         return config.features.tickControl.enabled;
     }
-    if (name == "Profiler" || name == "profiler") {
+    if (name == "Profiler") {
         return config.features.profiler.enabled;
     }
 
@@ -104,17 +104,17 @@ bool ConfigManager::enableFeature(const std::string& name) {
     bool changed = false;
 
     // 更新配置中的功能状态
-    if (name == "CactusWrench" || name == "cactus_wrench") {
+    if (name == "CactusWrench") {
         if (!config.features.cactusWrench.enabled) {
             config.features.cactusWrench.enabled = true;
             changed                              = true;
         }
-    } else if (name == "TickControl" || name == "tick_control") {
+    } else if (name == "TickControl") {
         if (!config.features.tickControl.enabled) {
             config.features.tickControl.enabled = true;
             changed                             = true;
         }
-    } else if (name == "Profiler" || name == "profiler") {
+    } else if (name == "Profiler") {
         if (!config.features.profiler.enabled) {
             config.features.profiler.enabled = true;
             changed                          = true;
@@ -138,17 +138,17 @@ bool ConfigManager::disableFeature(const std::string& name) {
     bool changed = false;
 
     // 更新配置中的功能状态
-    if (name == "CactusWrench" || name == "cactus_wrench") {
+    if (name == "CactusWrench") {
         if (config.features.cactusWrench.enabled) {
             config.features.cactusWrench.enabled = false;
             changed                              = true;
         }
-    } else if (name == "TickControl" || name == "tick_control") {
+    } else if (name == "TickControl") {
         if (config.features.tickControl.enabled) {
             config.features.tickControl.enabled = false;
             changed                             = true;
         }
-    } else if (name == "Profiler" || name == "profiler") {
+    } else if (name == "Profiler") {
         if (config.features.profiler.enabled) {
             config.features.profiler.enabled = false;
             changed                          = true;

@@ -36,7 +36,6 @@ public:
     // 基础接口
     virtual bool onEnable()  = 0;
     virtual bool onDisable() = 0;
-    // Tick功能已移除，专注于基础功能
 
     // 状态管理
     bool                      enable();

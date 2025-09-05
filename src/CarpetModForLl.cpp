@@ -48,9 +48,7 @@ bool CarpetModForLl::enable() {
         getSelf().getLogger().info("Modules initialized");
 
         // 注册命令
-        CommandManager::registerCommand<CarpetCommand>();
-        CommandManager::registerCommand<TickCommand>();
-        CommandManager::registerCommand<ProfCommand>();
+        CommandManager::registerAllCommands();
         getSelf().getLogger().info("Commands registered");
 
         getSelf().getLogger().info("Carpet Mod For LL enabled successfully");

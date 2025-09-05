@@ -11,6 +11,22 @@
 
 namespace carpet_mod_for_ll {
 
+// Carpet命令参数结构体
+struct CarpetFeatureParam {
+    std::string feature;
+};
+
+struct CarpetConfigParam {
+    std::string feature;
+    std::string value;
+};
+
+} // namespace carpet_mod_for_ll
+
+// boost::pfr会自动识别这些结构体
+
+namespace carpet_mod_for_ll {
+
 void CarpetCommand::registerCommand() {
     auto mod = ll::mod::NativeMod::current();
     
@@ -64,6 +80,23 @@ void CarpetCommand::registerCommand() {
             .text("config")
             .execute([](CommandOrigin const&, CommandOutput& output) {
                 CarpetCommand::handleConfig("");
+            });
+        
+        // config子命令 - 带feature参数
+        command.overload<CarpetFeatureParam>()
+            .text("config")
+            .required("feature")
+            .execute([](CommandOrigin const&, CommandOutput& output, CarpetFeatureParam const& params) {
+                CarpetCommand::handleConfig(params.feature);
+            });
+        
+        // config子命令 - 带feature和value参数
+        command.overload<CarpetConfigParam>()
+            .text("config")
+            .required("feature")
+            .required("value")
+            .execute([](CommandOrigin const&, CommandOutput& output, CarpetConfigParam const& params) {
+                CarpetCommand::handleConfig(params.feature, params.value);
             });
         
         mod->getLogger().info("Carpet command registered successfully");

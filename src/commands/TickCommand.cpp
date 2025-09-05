@@ -10,6 +10,18 @@
 
 namespace carpet_mod_for_ll {
 
+// Tick命令参数结构体
+struct TickIntParam {
+    int value;
+};
+
+} // namespace carpet_mod_for_ll
+
+// 使用boost::pfr注册反射信息（LeviLamina使用boost::pfr进行反射）
+// 这个结构体会自动被boost::pfr识别，无需额外注册
+
+namespace carpet_mod_for_ll {
+
 void TickCommand::registerCommand() {
     auto mod = ll::mod::NativeMod::current();
     
@@ -45,6 +57,45 @@ void TickCommand::registerCommand() {
             .text("r")
             .execute([](CommandOrigin const&, CommandOutput& output) {
                 TickCommand::handleReset();
+            });
+        
+        // /tick forward <ticks>, /tick fw <ticks>
+        command.overload<TickIntParam>()
+            .text("forward")
+            .required("value")
+            .execute([](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
+                TickCommand::handleForward(params.value);
+            });
+            
+        command.overload<TickIntParam>()
+            .text("fw")
+            .required("value")
+            .execute([](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
+                TickCommand::handleForward(params.value);
+            });
+        
+        // /tick warp <ticks>
+        command.overload<TickIntParam>()
+            .text("warp")
+            .required("value")
+            .execute([](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
+                TickCommand::handleWarp(params.value);
+            });
+        
+        // /tick acc <multiplier>
+        command.overload<TickIntParam>()
+            .text("acc")
+            .required("value")
+            .execute([](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
+                TickCommand::handleAcc(params.value);
+            });
+        
+        // /tick slow <divider>
+        command.overload<TickIntParam>()
+            .text("slow")
+            .required("value")
+            .execute([](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
+                TickCommand::handleSlow(params.value);
             });
         
         // /tick query

@@ -10,6 +10,15 @@
 
 namespace carpet_mod_for_ll {
 
+// Prof命令参数结构体
+struct ProfTicksParam {
+    int ticks;
+};
+
+} // namespace carpet_mod_for_ll
+
+namespace carpet_mod_for_ll {
+
 void ProfCommand::registerCommand() {
     auto mod = ll::mod::NativeMod::current();
     
@@ -27,45 +36,88 @@ void ProfCommand::registerCommand() {
                 ProfCommand::handleNormal();
             });
         
-        // /prof normal
+        // /prof normal [ticks]
         command.overload()
             .text("normal")
             .execute([](CommandOrigin const&, CommandOutput& output) {
                 ProfCommand::handleNormal();
             });
+            
+        command.overload<ProfTicksParam>()
+            .text("normal")
+            .required("ticks")
+            .execute([](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
+                // TODO: Pass ticks parameter to handler
+                ProfCommand::handleNormal();
+            });
         
-        // /prof chunk
+        // /prof chunk [ticks]
         command.overload()
             .text("chunk")
             .execute([](CommandOrigin const&, CommandOutput& output) {
                 ProfCommand::handleChunk();
             });
+            
+        command.overload<ProfTicksParam>()
+            .text("chunk")
+            .required("ticks")
+            .execute([](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
+                ProfCommand::handleChunk();
+            });
         
-        // /prof entity
+        // /prof entity [ticks]
         command.overload()
             .text("entity")
             .execute([](CommandOrigin const&, CommandOutput& output) {
                 ProfCommand::handleEntity();
             });
+            
+        command.overload<ProfTicksParam>()
+            .text("entity")
+            .required("ticks")
+            .execute([](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
+                ProfCommand::handleEntity();
+            });
         
-        // /prof pt
+        // /prof pt [ticks]
         command.overload()
             .text("pt")
             .execute([](CommandOrigin const&, CommandOutput& output) {
                 ProfCommand::handlePendingTick();
             });
+            
+        command.overload<ProfTicksParam>()
+            .text("pt")
+            .required("ticks")
+            .execute([](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
+                ProfCommand::handlePendingTick();
+            });
         
-        // /prof pendingtick
+        // /prof pendingtick [ticks]
         command.overload()
             .text("pendingtick")
             .execute([](CommandOrigin const&, CommandOutput& output) {
                 ProfCommand::handlePendingTick();
             });
+            
+        command.overload<ProfTicksParam>()
+            .text("pendingtick")
+            .required("ticks")
+            .execute([](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
+                ProfCommand::handlePendingTick();
+            });
         
-        // /prof mspt
+        // /prof mspt [ticks]
         command.overload()
             .text("mspt")
             .execute([](CommandOrigin const&, CommandOutput& output) {
+                ProfCommand::handleMSPT();
+            });
+            
+        command.overload<ProfTicksParam>()
+            .text("mspt")
+            .required("ticks")
+            .execute([](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
                 ProfCommand::handleMSPT();
             });
         

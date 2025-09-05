@@ -85,7 +85,7 @@ bool ConfigManager::reload() {
 // 便捷访问方法
 bool ConfigManager::isFeatureEnabled(const std::string& name) const {
     // 根据功能名称返回对应的启用状态
-    if (name == "CactusWrench") {
+    if (name == "cactus_wrench" || name == "CactusWrench") {
         return config.features.cactusWrench.enabled;
     }
     if (name == "TickControl") {
@@ -104,7 +104,7 @@ bool ConfigManager::enableFeature(const std::string& name) {
     bool changed = false;
 
     // 更新配置中的功能状态
-    if (name == "CactusWrench") {
+    if (name == "cactus_wrench" || name == "CactusWrench") {
         if (!config.features.cactusWrench.enabled) {
             config.features.cactusWrench.enabled = true;
             changed                              = true;
@@ -138,7 +138,7 @@ bool ConfigManager::disableFeature(const std::string& name) {
     bool changed = false;
 
     // 更新配置中的功能状态
-    if (name == "CactusWrench") {
+    if (name == "CactusWrench" || name == "cactus_wrench") {
         if (config.features.cactusWrench.enabled) {
             config.features.cactusWrench.enabled = false;
             changed                              = true;

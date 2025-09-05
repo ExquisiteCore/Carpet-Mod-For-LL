@@ -3,12 +3,6 @@
 #include "mc/server/commands/CommandOutput.h"
 namespace carpet_mod_for_ll {
 
-// Prof命令参数结构
-struct ProfCommandParams {
-    enum class Action { Normal, Chunk, Entity, PendingTick, MSPT, Stop };
-
-    Action action;
-};
 
 // Prof命令管理类
 class ProfCommand {

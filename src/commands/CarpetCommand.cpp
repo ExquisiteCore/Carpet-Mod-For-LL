@@ -24,7 +24,6 @@ struct CarpetConfigParam {
 
 } // namespace carpet_mod_for_ll
 
-// boost::pfr会自动识别这些结构体
 
 namespace carpet_mod_for_ll {
 

@@ -5,14 +5,6 @@
 
 namespace carpet_mod_for_ll {
 
-// Carpet命令参数结构
-struct CarpetCommandParams {
-    enum class Action { Help, Info, List, Reload, Config };
-
-    Action      action;
-    std::string feature; // for config subcommand
-    std::string value;   // for config subcommand
-};
 
 // Carpet命令管理类
 class CarpetCommand {

@@ -1,29 +1,40 @@
 #pragma once
 
-#include "BaseCommand.h"
-#include "../features/ProfilerModule.h"
+#include <string>
 
 namespace carpet_mod_for_ll {
 
-class ProfCommand : public BaseCommand {
+// Prof命令参数结构
+struct ProfCommandParams {
+    enum class Action {
+        Normal,
+        Chunk,
+        Entity,
+        PendingTick,
+        MSPT,
+        Stop
+    };
+    
+    Action action;
+};
+
+// Prof命令管理类
+class ProfCommand {
 public:
-    ProfCommand();
-    
-    bool registerCommand() override;
-    
+    // 注册命令到LeviLamina
+    static void registerCommand();
+
 private:
-    mutable ProfilerModule* profilerModule = nullptr;
+    // 命令处理函数
+    static void handleNormal();
+    static void handleChunk();
+    static void handleEntity();
+    static void handlePendingTick();
+    static void handleMSPT();
+    static void handleStop();
     
-    // Helper to get module lazily
-    ProfilerModule* getProfilerModule() const;
-    
-    // 子命令处理器
-    void handleNormal(const CommandContext& ctx);
-    void handleChunk(const CommandContext& ctx);
-    void handleEntity(const CommandContext& ctx);
-    void handlePendingTick(const CommandContext& ctx);
-    void handleMSPT(const CommandContext& ctx);
-    void handleStop(const CommandContext& ctx);
+    // 获取Profiler模块的辅助函数
+    static class ProfilerModule* getProfilerModule();
 };
 
 } // namespace carpet_mod_for_ll

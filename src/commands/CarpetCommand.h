@@ -1,27 +1,37 @@
 #pragma once
 
-#include "../utils/I18nManager.h"
-#include "BaseCommand.h"
-
+#include <string>
 
 namespace carpet_mod_for_ll {
 
-class CarpetCommand : public BaseCommand {
+// Carpet命令参数结构
+struct CarpetCommandParams {
+    enum class Action {
+        Help,
+        Info, 
+        List,
+        Reload,
+        Config
+    };
+    
+    Action action;
+    std::string feature;  // for config subcommand
+    std::string value;    // for config subcommand
+};
+
+// Carpet命令管理类
+class CarpetCommand {
 public:
-    CarpetCommand() : BaseCommand("carpet", TR("carpet.command.help"), CommandPermission::Any) {}
-
-    // 重写注册命令方法以使用更好的参数处理
-    bool registerCommand() override;
-
-    // 显示帮助
-    void showHelp(const CommandContext& ctx) const override;
+    // 注册命令到LeviLamina
+    static void registerCommand();
 
 private:
-    void handleHelp(const CommandContext& ctx);
-    void handleConfig(const CommandContext& ctx);
-    void handleInfo(const CommandContext& ctx);
-    void handleReload(const CommandContext& ctx);
-    void handleList(const CommandContext& ctx);
+    // 命令处理函数
+    static void handleHelp();
+    static void handleInfo();
+    static void handleList();
+    static void handleReload();
+    static void handleConfig(const std::string& feature, const std::string& value = "");
 };
 
 } // namespace carpet_mod_for_ll

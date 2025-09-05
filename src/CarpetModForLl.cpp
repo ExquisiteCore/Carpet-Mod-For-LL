@@ -1,9 +1,6 @@
 #include "CarpetModForLl.h"
 
-#include "commands/BaseCommand.h"
-#include "commands/CarpetCommand.h"
-#include "commands/ProfCommand.h"
-#include "commands/TickCommand.h"
+#include "commands/CommandRegistry.h"
 #include "functions/BaseModule.h"
 #include "utils/ConfigManager.h"
 #include "utils/I18nManager.h"
@@ -48,7 +45,7 @@ bool CarpetModForLl::enable() {
         getSelf().getLogger().info("Modules initialized");
 
         // 注册命令
-        CommandManager::registerAllCommands();
+        CommandRegistry::registerAllCommands();
         getSelf().getLogger().info("Commands registered");
 
         getSelf().getLogger().info("Carpet Mod For LL enabled successfully");
@@ -69,7 +66,7 @@ bool CarpetModForLl::disable() {
         getSelf().getLogger().info("Modules cleaned up");
 
         // 清理命令系统
-        CommandManager::cleanup();
+        CommandRegistry::cleanup();
         getSelf().getLogger().info("Commands cleaned up");
 
         // 清理配置管理器

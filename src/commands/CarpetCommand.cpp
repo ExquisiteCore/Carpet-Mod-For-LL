@@ -3,164 +3,134 @@
 #include "../utils/I18nManager.h"
 #include "../functions/BaseModule.h"
 #include <ll/api/mod/NativeMod.h>
-#include <ll/api/service/Service.h>
 #include <ll/api/command/CommandRegistrar.h>
 #include <ll/api/command/CommandHandle.h>
 #include <mc/server/commands/CommandOrigin.h>
 #include <mc/server/commands/CommandOutput.h>
 #include <mc/server/commands/CommandPermissionLevel.h>
-#include <mc/world/actor/player/Player.h>
 
 namespace carpet_mod_for_ll {
 
-// 命令参数结构
-struct CarpetCommandParams {
-    std::string subcommand;
-    std::string feature;
-    std::string action;
-};
-
-bool CarpetCommand::registerCommand() {
+void CarpetCommand::registerCommand() {
+    auto mod = ll::mod::NativeMod::current();
+    
     try {
-        auto mod = ll::mod::NativeMod::current();
+        // 使用LeviLamina标准API注册命令
+        auto& command = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
+            "carpet",
+            "Carpet mod main command",
+            CommandPermissionLevel::Any
+        );
         
-        // 使用 LeviLamina 的命令注册方式
-        auto& command = ll::command::CommandRegistrar::getInstance()
-                            .getOrCreateCommand("carpet", "Carpet Mod main command", 
-                                              CommandPermissionLevel::Any);
-        
-        // 无参数命令 - 显示帮助
-        command.overload().execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            CommandContext ctx{&origin, &output, {}};
-            showHelp(ctx);
+        // 无参数版本 - 显示帮助
+        command.overload().execute([](CommandOrigin const&, CommandOutput& output) {
+            CarpetCommand::handleHelp();
         });
         
-        // help 子命令
-        command.overload().text("help").execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            CommandContext ctx{&origin, &output, {"help"}};
-            handleHelp(ctx);
-        });
+        // help子命令
+        command.overload()
+            .text("help")
+            .execute([](CommandOrigin const&, CommandOutput& output) {
+                CarpetCommand::handleHelp();
+            });
         
-        // info 子命令
-        command.overload().text("info").execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            CommandContext ctx{&origin, &output, {"info"}};
-            handleInfo(ctx);
-        });
+        // info子命令 
+        command.overload()
+            .text("info")
+            .execute([](CommandOrigin const&, CommandOutput& output) {
+                CarpetCommand::handleInfo();
+            });
         
-        // reload 子命令 (需要管理员权限)
-        command.overload().text("reload").execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            // 检查执行者是否有权限
-            if (origin.getPermissionsLevel() < CommandPermissionLevel::Admin) {
-                output.error(TR("carpet.error.admin_only"));
-                return;
-            }
-            
-            CommandContext ctx{&origin, &output, {"reload"}};
-            handleReload(ctx);
-        });
+        // list子命令
+        command.overload()
+            .text("list")
+            .execute([](CommandOrigin const&, CommandOutput& output) {
+                CarpetCommand::handleList();
+            });
         
-        // list 子命令
-        command.overload().text("list").execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            CommandContext ctx{&origin, &output, {"list"}};
-            handleList(ctx);
-        });
+        // reload子命令 - 需要管理员权限
+        command.overload()
+            .text("reload")
+            .execute([](CommandOrigin const& origin, CommandOutput& output) {
+                if (origin.getPermissionsLevel() < CommandPermissionLevel::Admin) {
+                    output.error("You don't have permission to reload config");
+                    return;
+                }
+                CarpetCommand::handleReload();
+            });
         
-        // config 子命令 (无参数)
-        command.overload().text("config").execute([this](CommandOrigin const& origin, CommandOutput& output) {
-            CommandContext ctx{&origin, &output, {"config"}};
-            handleConfig(ctx);
-        });
+        // config子命令 - 无参数版本
+        command.overload()
+            .text("config")
+            .execute([](CommandOrigin const&, CommandOutput& output) {
+                CarpetCommand::handleConfig("");
+            });
         
-        mod->getLogger().info("Command 'carpet' registered successfully");
-        return true;
+        mod->getLogger().info("Carpet command registered successfully");
         
     } catch (const std::exception& e) {
-        auto mod = ll::mod::NativeMod::current();
-        mod->getLogger().error("Failed to register command 'carpet': {}", e.what());
-        return false;
+        mod->getLogger().error("Failed to register carpet command: {}", e.what());
     }
 }
 
-void CarpetCommand::handleHelp(const CommandContext& ctx) {
-    showHelp(ctx);
+void CarpetCommand::handleHelp() {
+    auto mod = ll::mod::NativeMod::current();
+    auto& logger = mod->getLogger();
+    
+    logger.info("§6========== Carpet Help ==========");
+    logger.info("§7Carpet Mod for LeviLamina - Bedrock Edition");
+    logger.info("§7Usage: /carpet <subcommand> [args...]");
+    logger.info("");
+    logger.info("§6Available subcommands:");
+    logger.info("§7  help - Show this help message");
+    logger.info("§7  info - Show mod information");
+    logger.info("§7  list - List available features");
+    logger.info("§7  reload - Reload configuration (Admin only)");
+    logger.info("§7  config [feature] [value] - Configure features");
+    logger.info("");
+    logger.info("§7For more help, visit: https://github.com/your-repo");
 }
 
-void CarpetCommand::handleConfig(const CommandContext& ctx) {
-    if (ctx.args.size() < 2) {
-        ctx.error(TR("carpet.config.usage.detailed"));
-        return;
-    }
+void CarpetCommand::handleInfo() {
+    auto mod = ll::mod::NativeMod::current();
+    auto& logger = mod->getLogger();
     
-    std::string featureName = ctx.args[1];
-    auto& configManager = ConfigManager::getInstance();
-    
-    // 如果只有功能名称，显示当前状态
-    if (ctx.args.size() == 2) {
-        bool enabled = configManager.isFeatureEnabled(featureName);
-        std::string status = enabled ? TR("carpet.config.feature.enabled_status") : TR("carpet.config.feature.disabled_status");
-        ctx.info(TR_FMT("carpet.config.feature.status", featureName, status));
-        return;
-    }
-    
-    std::string action = ctx.args[2];
-    bool success = false;
-    
-    if (action == "enable" || action == "on" || action == "true" || action == "启用") {
-        success = configManager.enableFeature(featureName);
-        if (success) {
-            ctx.success(TR_FMT("carpet.feature.enabled", featureName));
-            
-            // 如果是cactus_wrench，动态启用模块
-            if (featureName == "cactus_wrench") {
-                auto* module = ModuleManager::getModule("cactus_wrench");
-                if (module && !module->isEnabled()) {
-                    module->enable();
-                }
-            }
-        }
-    } else if (action == "disable" || action == "off" || action == "false" || action == "禁用") {
-        success = configManager.disableFeature(featureName);
-        if (success) {
-            ctx.success(TR_FMT("carpet.feature.disabled", featureName));
-            
-            // 如果是cactus_wrench，动态禁用模块
-            if (featureName == "cactus_wrench") {
-                auto* module = ModuleManager::getModule("cactus_wrench");
-                if (module && module->isEnabled()) {
-                    module->disable();
-                }
-            }
-        }
-    } else {
-        ctx.error(TR("carpet.config.action.invalid"));
-        return;
-    }
-    
-    if (!success) {
-        ctx.error(TR_FMT("carpet.feature.not_found", featureName));
-    }
-}
-
-void CarpetCommand::handleInfo(const CommandContext& ctx) {
-    ctx.info(TR("carpet.info.title"));
-    ctx.info(TR_FMT("carpet.info.version", "1.0.0", "1.21.0"));
-    ctx.info(TR("carpet.info.author"));
-    ctx.info("");
+    logger.info("§6========== Carpet Info ==========");
+    logger.info("§7Version: 1.0.0");
+    logger.info("§7Game Version: 1.21.0+");
+    logger.info("§7Author: Carpet Team");
+    logger.info("");
     
     auto& configManager = ConfigManager::getInstance();
     auto& config = configManager.getConfig();
     
-    ctx.info(TR("carpet.info.config"));
-    ctx.info(TR("carpet.info.language") + config.general.language);
-    ctx.info(TR("carpet.info.prefix") + config.commands.prefix);
-    ctx.info(TR("carpet.info.permission") + std::to_string(config.commands.permissionLevel));
+    logger.info("§6Configuration:");
+    logger.info("§7Language: {}", config.general.language);
+    logger.info("§7Command Prefix: {}", config.commands.prefix);
+    logger.info("§7Permission Level: {}", config.commands.permissionLevel);
     
-    // 功能统计 - 暂时显示为0，功能将在后续版本中添加
-    ctx.info(TR_FMT("carpet.info.features_count", "0"));
+    // TODO: 显示功能统计
+    logger.info("§7Features Count: 0 (Coming soon)");
 }
 
-void CarpetCommand::handleReload(const CommandContext& ctx) {
-    ctx.info(TR("carpet.reload.start"));
+void CarpetCommand::handleList() {
+    auto mod = ll::mod::NativeMod::current();
+    auto& logger = mod->getLogger();
+    
+    logger.info("§6========== Available Features ==========");
+    logger.info("");
+    logger.info("§6Features:");
+    logger.info("§7  cactus_wrench - Cactus wrench tool for debugging");
+    logger.info("");
+    logger.info("§7Usage: /carpet config <feature> <enable|disable>");
+    logger.info("§7Example: /carpet config cactus_wrench enable");
+}
+
+void CarpetCommand::handleReload() {
+    auto mod = ll::mod::NativeMod::current();
+    auto& logger = mod->getLogger();
+    
+    logger.info("Reloading configuration...");
     
     // 重载配置
     bool configSuccess = ConfigManager::getInstance().reload();
@@ -169,38 +139,70 @@ void CarpetCommand::handleReload(const CommandContext& ctx) {
     bool i18nSuccess = I18nManager::getInstance().reload();
     
     if (configSuccess && i18nSuccess) {
-        ctx.success(TR("carpet.reload.success"));
+        logger.info("§aConfiguration reloaded successfully!");
     } else {
-        if (!configSuccess) ctx.error(TR("carpet.reload.config_failed"));
-        if (!i18nSuccess) ctx.error(TR("carpet.reload.i18n_failed"));
+        if (!configSuccess) logger.error("§cFailed to reload configuration!");
+        if (!i18nSuccess) logger.error("§cFailed to reload language files!");
     }
 }
 
-void CarpetCommand::handleList(const CommandContext& ctx) {
-    ctx.info(TR("carpet.list.title"));
-    ctx.info("");
+void CarpetCommand::handleConfig(const std::string& feature, const std::string& value) {
+    auto mod = ll::mod::NativeMod::current();
+    auto& logger = mod->getLogger();
     
-    // 显示仙人掌扳手功能
-    ctx.info("§6Available Features:");
-    ctx.info("§7  cactus_wrench §f- " + TR("carpet.cactus_wrench.feature.description"));
-    ctx.info("");
-    ctx.info(TR("carpet.list.usage"));
-}
-
-void CarpetCommand::showHelp(const CommandContext& ctx) const {
-    ctx.info(TR("carpet.help.title"));
-    ctx.info(TR("carpet.help.description"));
-    ctx.info(TR("carpet.help.usage"));
-    ctx.info("");
+    if (feature.empty()) {
+        logger.info("§6Configuration Management");
+        logger.info("§7Usage: /carpet config <feature> [enable|disable]");
+        logger.info("§7Use '/carpet list' to see available features");
+        return;
+    }
     
-    ctx.info(TR("carpet.help.subcommands"));
-    ctx.info("§7  " + TR("carpet.help.subcmd.help"));
-    ctx.info("§7  " + TR("carpet.help.subcmd.info"));
-    ctx.info("§7  " + TR("carpet.help.subcmd.list"));
-    ctx.info("§7  " + TR("carpet.help.subcmd.reload"));
-    ctx.info("§7  " + TR("carpet.help.subcmd.config"));
-    ctx.info("");
-    ctx.info("§7" + TR("carpet.help.footer"));
+    auto& configManager = ConfigManager::getInstance();
+    
+    // 如果只有功能名称，显示当前状态
+    if (value.empty()) {
+        bool enabled = configManager.isFeatureEnabled(feature);
+        std::string status = enabled ? "§aEnabled" : "§cDisabled";
+        logger.info("Feature '{}': {}", feature, status);
+        return;
+    }
+    
+    bool success = false;
+    
+    if (value == "enable" || value == "on" || value == "true" || value == "1") {
+        success = configManager.enableFeature(feature);
+        if (success) {
+            logger.info("§aFeature '{}' has been enabled", feature);
+            
+            // 处理特殊功能
+            if (feature == "cactus_wrench") {
+                auto* module = ModuleManager::getModule("cactus_wrench");
+                if (module && !module->isEnabled()) {
+                    module->enable();
+                }
+            }
+        }
+    } else if (value == "disable" || value == "off" || value == "false" || value == "0") {
+        success = configManager.disableFeature(feature);
+        if (success) {
+            logger.info("§cFeature '{}' has been disabled", feature);
+            
+            // 处理特殊功能
+            if (feature == "cactus_wrench") {
+                auto* module = ModuleManager::getModule("cactus_wrench");
+                if (module && module->isEnabled()) {
+                    module->disable();
+                }
+            }
+        }
+    } else {
+        logger.error("§cInvalid value '{}'. Use 'enable' or 'disable'", value);
+        return;
+    }
+    
+    if (!success) {
+        logger.error("§cFeature '{}' not found", feature);
+    }
 }
 
 } // namespace carpet_mod_for_ll

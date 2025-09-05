@@ -1,31 +1,45 @@
 #pragma once
 
-#include "BaseCommand.h"
-#include "../features/TickModule.h"
+#include <string>
 
 namespace carpet_mod_for_ll {
 
-class TickCommand : public BaseCommand {
+// Tick命令参数结构
+struct TickCommandParams {
+    enum class Action {
+        Freeze,
+        Reset,
+        Forward,
+        Warp,
+        Acc,
+        Slow,
+        Query,
+        MSPT
+    };
+    
+    Action action;
+    int value = 0;  // for forward/warp/acc/slow commands
+};
+
+// Tick命令管理类
+class TickCommand {
 public:
-    TickCommand();
-    
-    bool registerCommand() override;
-    
+    // 注册命令到LeviLamina
+    static void registerCommand();
+
 private:
-    mutable TickModule* tickModule = nullptr;
+    // 命令处理函数
+    static void handleFreeze();
+    static void handleReset();
+    static void handleForward(int ticks);
+    static void handleWarp(int ticks);
+    static void handleAcc(int multiplier);
+    static void handleSlow(int divider);
+    static void handleQuery();
+    static void handleMSPT();
     
-    // Helper to get module lazily
-    TickModule* getTickModule() const;
-    
-    // 子命令处理器
-    void handleFreeze(const CommandContext& ctx);
-    void handleReset(const CommandContext& ctx);
-    void handleForward(const CommandContext& ctx);
-    void handleWarp(const CommandContext& ctx);
-    void handleAcc(const CommandContext& ctx);
-    void handleSlow(const CommandContext& ctx);
-    void handleQuery(const CommandContext& ctx);
-    void handleMSPT(const CommandContext& ctx);
+    // 获取Tick模块的辅助函数
+    static class TickModule* getTickModule();
 };
 
 } // namespace carpet_mod_for_ll

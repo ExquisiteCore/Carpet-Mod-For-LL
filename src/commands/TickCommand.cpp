@@ -1,6 +1,7 @@
 #include "TickCommand.h"
 #include "../features/TickModule.h"
 #include "../functions/BaseModule.h"
+#include "../utils/ConfigManager.h"
 #include <ll/api/command/CommandHandle.h>
 #include <ll/api/command/CommandRegistrar.h>
 #include <ll/api/mod/NativeMod.h>
@@ -31,7 +32,7 @@ void TickCommand::registerCommand() {
         auto& command = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
             "tick",
             "Tick control command",
-            CommandPermissionLevel::Any // Tick命令需要管理员权限
+            ConfigManager::getCommandPermissionLevel(ConfigManager::getInstance().getConfig().commands.permissionLevel)
         );
 
         // /tick freeze, /tick fz

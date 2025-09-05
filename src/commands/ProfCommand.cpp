@@ -1,6 +1,8 @@
 #include "ProfCommand.h"
 #include "../features/ProfilerModule.h"
 #include "../functions/BaseModule.h"
+#include "../utils/ConfigManager.h"
+
 #include <ll/api/command/CommandHandle.h>
 #include <ll/api/command/CommandRegistrar.h>
 #include <ll/api/mod/NativeMod.h>
@@ -28,7 +30,7 @@ void ProfCommand::registerCommand() {
         auto& command = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
             "prof",
             "Profiling command",
-            CommandPermissionLevel::Any // Profiling命令需要管理员权限
+            ConfigManager::getCommandPermissionLevel(ConfigManager::getInstance().getConfig().commands.permissionLevel)
         );
 
         // /prof - 默认执行normal

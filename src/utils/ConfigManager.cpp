@@ -166,6 +166,22 @@ bool ConfigManager::disableFeature(const std::string& name) {
     mod->getLogger().info("Feature {} is already disabled", name);
     return true;
 }
+CommandPermissionLevel ConfigManager::getCommandPermissionLevel(const int& permissionLevel) {
+    switch (permissionLevel) {
+    case 0:
+        return CommandPermissionLevel::Any;
+    case 1:
+        return CommandPermissionLevel::GameDirectors;
+    case 2:
+        return CommandPermissionLevel::Admin;
+    case 3:
+        return CommandPermissionLevel::Host;
+    case 4:
+        return CommandPermissionLevel::Owner;
+    default:
+        return CommandPermissionLevel::Any;
+    }
+}
 
 void ConfigManager::resetToDefaults() {
     config = Config{}; // 重置为默认配置，会自动应用结构体中定义的默认值

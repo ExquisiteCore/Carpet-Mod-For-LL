@@ -19,7 +19,7 @@ struct Config {
     // 命令设置
     struct Commands {
         std::string prefix               = "carpet";
-        int         permissionLevel      = 2;
+        int         permissionLevel      = 0;
         bool        enableAutoComplete   = true;
         bool        enableCommandHistory = true;
     } commands;

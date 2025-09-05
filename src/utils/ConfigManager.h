@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include <filesystem>
+#include <mc/server/commands/CommandPermissionLevel.h>
 #include <memory>
 
 
@@ -17,9 +18,10 @@ public:
     ConfigManager();
     ~ConfigManager() = default;
 
-    static ConfigManager& getInstance();
-    static void           initialize();
-    static void           cleanup();
+    static ConfigManager&         getInstance();
+    static void                   initialize();
+    static void                   cleanup();
+    static CommandPermissionLevel getCommandPermissionLevel(const int& permissionLevel);
 
     // 配置文件操作
     bool load();

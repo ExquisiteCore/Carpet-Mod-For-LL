@@ -1,7 +1,7 @@
 #include "TickModule.h"
-#include "TickHookManager.h"
-#include "ProfilerModule.h"
 #include "../functions/BaseModule.h"
+#include "ProfilerModule.h"
+#include "TickHookManager.h"
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/mod/NativeMod.h>
 #include <numeric>
@@ -16,24 +16,24 @@ TickModule::TickModule() : BaseModule("TickControl", "carpet.module.tick.descrip
 bool TickModule::onEnable() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("TickModule enabled");
-    
+
     // Initialize TickHookManager
     TickHookManager::initialize();
     TickHookManager::setTickEnabled(true);
-    
+
     return true;
 }
 
 bool TickModule::onDisable() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("TickModule disabled");
-    
+
     resetTick();
-    
+
     // Cleanup TickHookManager
     TickHookManager::setTickEnabled(false);
     TickHookManager::cleanup();
-    
+
     return true;
 }
 
@@ -41,7 +41,7 @@ void TickModule::freezeTick() {
     if (currentStatus != TickStatus::Frozen) {
         currentStatus = TickStatus::Frozen;
         TickHookManager::setFrozen(true);
-        
+
         auto mod = ll::mod::NativeMod::current();
         mod->getLogger().info("World ticking frozen");
     }
@@ -52,14 +52,14 @@ void TickModule::resetTick() {
     speedMultiplier = 1;
     targetTicks     = 0;
     remainingTicks  = 0;
-    
+
     // Reset all states in TickHookManager
     TickHookManager::setFrozen(false);
     TickHookManager::setSpeedMultiplier(1);
     TickHookManager::setSlowdownDivider(1);
     TickHookManager::setForwarding(false);
     TickHookManager::setWarping(false);
-    
+
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("World ticking reset to normal");
 }
@@ -74,9 +74,9 @@ void TickModule::forwardTick(int ticks) {
     currentStatus  = TickStatus::Forwarding;
     targetTicks    = ticks;
     remainingTicks = ticks;
-    
+
     TickHookManager::setForwarding(true, ticks);
-    
+
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Forwarding {} ticks", ticks);
 }
@@ -91,9 +91,9 @@ void TickModule::warpTick(int ticks) {
     currentStatus  = TickStatus::Warping;
     targetTicks    = ticks;
     remainingTicks = ticks;
-    
+
     TickHookManager::setWarping(true, ticks);
-    
+
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Warping {} ticks", ticks);
 }
@@ -107,9 +107,9 @@ void TickModule::accelerateTick(int multiplier) {
 
     currentStatus   = TickStatus::Accelerated;
     speedMultiplier = multiplier;
-    
+
     TickHookManager::setSpeedMultiplier(multiplier);
-    
+
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Accelerating world {}x", multiplier);
 }
@@ -123,9 +123,9 @@ void TickModule::slowDownTick(int divider) {
 
     currentStatus   = TickStatus::SlowedDown;
     speedMultiplier = divider;
-    
+
     TickHookManager::setSlowdownDivider(divider);
-    
+
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Slowing down world by {}", divider);
 }
@@ -211,11 +211,9 @@ void TickModule::onTickExecuted() {
             resetTick();
         }
     }
-    
+
     // 同时更新MSPT历史记录（如果有ProfilerModule提供的数据）
-    auto* profilerModule = dynamic_cast<ProfilerModule*>(
-        ModuleManager::getModule("Profiler")
-    );
+    auto* profilerModule = dynamic_cast<ProfilerModule*>(ModuleManager::getModule("Profiler"));
     if (profilerModule && profilerModule->isProfiling()) {
         // ProfilerModule会自动记录MSPT数据
     }

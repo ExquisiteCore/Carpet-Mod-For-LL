@@ -4,14 +4,6 @@
 
 namespace carpet_mod_for_ll {
 
-// Tick命令参数结构
-struct TickCommandParams {
-    enum class Action { Freeze, Reset, Forward, Warp, Acc, Slow, Query, MSPT };
-
-    Action action;
-    int    value = 0; // for forward/warp/acc/slow commands
-};
-
 // Tick命令管理类
 class TickCommand {
 public:

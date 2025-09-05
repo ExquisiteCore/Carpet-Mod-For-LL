@@ -10,7 +10,7 @@ class CommandRegistry {
 public:
     // 注册所有命令
     static void registerAllCommands();
-    
+
     // 清理所有命令
     static void cleanup();
 };

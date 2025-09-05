@@ -32,13 +32,13 @@ void CommandRegistry::registerAllCommands() {
 void CommandRegistry::cleanup() {
     auto mod = ll::mod::NativeMod::current();
     mod->getLogger().info("Cleaning up commands...");
-    
+
     try {
         // LeviLamina的DynamicCommand会在CommandRegistrar析构时自动清理
         // 这里主要是为了保持API一致性和日志记录
-        
+
         mod->getLogger().info("Commands cleanup completed");
-        
+
     } catch (const std::exception& e) {
         mod->getLogger().error("Failed to cleanup commands: {}", e.what());
     }

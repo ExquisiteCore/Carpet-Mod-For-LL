@@ -34,77 +34,81 @@ void ProfCommand::registerCommand() {
         );
 
         // /prof - 默认执行normal
-        command.overload().execute([](CommandOrigin const&, CommandOutput& output) { ProfCommand::handleNormal(); });
+        command.overload().execute([](CommandOrigin const&, CommandOutput& output) {
+            ProfCommand::handleNormal(output);
+        });
 
         // /prof normal [ticks]
         command.overload().text("normal").execute([](CommandOrigin const&, CommandOutput& output) {
-            ProfCommand::handleNormal();
+            ProfCommand::handleNormal(output);
         });
 
         command.overload<ProfTicksParam>().text("normal").required("ticks").execute(
             [](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
                 // TODO: Pass ticks parameter to handler
-                ProfCommand::handleNormal();
+                ProfCommand::handleNormal(output);
             }
         );
 
         // /prof chunk [ticks]
         command.overload().text("chunk").execute([](CommandOrigin const&, CommandOutput& output) {
-            ProfCommand::handleChunk();
+            ProfCommand::handleChunk(output);
         });
 
         command.overload<ProfTicksParam>().text("chunk").required("ticks").execute(
             [](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
-                ProfCommand::handleChunk();
+                ProfCommand::handleChunk(output);
             }
         );
 
         // /prof entity [ticks]
         command.overload().text("entity").execute([](CommandOrigin const&, CommandOutput& output) {
-            ProfCommand::handleEntity();
+            ProfCommand::handleEntity(output);
         });
 
         command.overload<ProfTicksParam>().text("entity").required("ticks").execute(
             [](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
-                ProfCommand::handleEntity();
+                ProfCommand::handleEntity(output);
             }
         );
 
         // /prof pt [ticks]
         command.overload().text("pt").execute([](CommandOrigin const&, CommandOutput& output) {
-            ProfCommand::handlePendingTick();
+            ProfCommand::handlePendingTick(output);
         });
 
         command.overload<ProfTicksParam>().text("pt").required("ticks").execute(
             [](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
-                ProfCommand::handlePendingTick();
+                ProfCommand::handlePendingTick(output);
             }
         );
 
         // /prof pendingtick [ticks]
         command.overload().text("pendingtick").execute([](CommandOrigin const&, CommandOutput& output) {
-            ProfCommand::handlePendingTick();
+            ProfCommand::handlePendingTick(output);
         });
 
         command.overload<ProfTicksParam>()
             .text("pendingtick")
             .required("ticks")
             .execute([](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
-                ProfCommand::handlePendingTick();
+                ProfCommand::handlePendingTick(output);
             });
 
         // /prof mspt [ticks]
         command.overload().text("mspt").execute([](CommandOrigin const&, CommandOutput& output) {
-            ProfCommand::handleMSPT();
+            ProfCommand::handleMSPT(output);
         });
 
         command.overload<ProfTicksParam>().text("mspt").required("ticks").execute(
-            [](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) { ProfCommand::handleMSPT(); }
+            [](CommandOrigin const&, CommandOutput& output, ProfTicksParam const& params) {
+                ProfCommand::handleMSPT(output);
+            }
         );
 
         // /prof stop
         command.overload().text("stop").execute([](CommandOrigin const&, CommandOutput& output) {
-            ProfCommand::handleStop();
+            ProfCommand::handleStop(output);
         });
 
         mod->getLogger().info("Prof command registered successfully");
@@ -122,123 +126,111 @@ ProfilerModule* ProfCommand::getProfilerModule() {
     return profilerModule;
 }
 
-void ProfCommand::handleNormal() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void ProfCommand::handleNormal(CommandOutput& output) {
 
     auto* module = getProfilerModule();
     if (!module) {
-        logger.error("§cProfiler module not found");
+        output.error("§cProfiler module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cProfiler module is disabled");
+        output.error("§cProfiler module is disabled");
         return;
     }
 
     int ticks = 100; // Default value
     module->profileNormal(ticks);
-    logger.info("§aStarting normal profiling for {} ticks", ticks);
+    output.success("§aStarting normal profiling for {} ticks", ticks);
 }
 
-void ProfCommand::handleChunk() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void ProfCommand::handleChunk(CommandOutput& output) {
 
     auto* module = getProfilerModule();
     if (!module) {
-        logger.error("§cProfiler module not found");
+        output.error("§cProfiler module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cProfiler module is disabled");
+        output.error("§cProfiler module is disabled");
         return;
     }
 
     int ticks = 100; // Default value
     module->profileChunk(ticks);
-    logger.info("§aStarting chunk profiling for {} ticks", ticks);
+    output.success("§aStarting chunk profiling for {} ticks", ticks);
 }
 
-void ProfCommand::handleEntity() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void ProfCommand::handleEntity(CommandOutput& output) {
 
     auto* module = getProfilerModule();
     if (!module) {
-        logger.error("§cProfiler module not found");
+        output.error("§cProfiler module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cProfiler module is disabled");
+        output.error("§cProfiler module is disabled");
         return;
     }
 
     int ticks = 100; // Default value
     module->profileEntity(ticks);
-    logger.info("§aStarting entity profiling for {} ticks", ticks);
+    output.success("§aStarting entity profiling for {} ticks", ticks);
 }
 
-void ProfCommand::handlePendingTick() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void ProfCommand::handlePendingTick(CommandOutput& output) {
 
     auto* module = getProfilerModule();
     if (!module) {
-        logger.error("§cProfiler module not found");
+        output.error("§cProfiler module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cProfiler module is disabled");
+        output.error("§cProfiler module is disabled");
         return;
     }
 
     int ticks = 100; // Default value
     module->profilePendingTick(ticks);
-    logger.info("§aStarting pending tick profiling for {} ticks", ticks);
+    output.success("§aStarting pending tick profiling for {} ticks", ticks);
 }
 
-void ProfCommand::handleMSPT() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void ProfCommand::handleMSPT(CommandOutput& output) {
 
     auto* module = getProfilerModule();
     if (!module) {
-        logger.error("§cProfiler module not found");
+        output.error("§cProfiler module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cProfiler module is disabled");
+        output.error("§cProfiler module is disabled");
         return;
     }
 
     int ticks = 100; // Default value
     module->profileMSPT(ticks);
-    logger.info("§aStarting MSPT profiling for {} ticks", ticks);
+    output.success("§aStarting MSPT profiling for {} ticks", ticks);
 }
 
-void ProfCommand::handleStop() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void ProfCommand::handleStop(CommandOutput& output) {
 
     auto* module = getProfilerModule();
     if (!module) {
-        logger.error("§cProfiler module not found");
+        output.error("§cProfiler module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cProfiler module is disabled");
+        output.error("§cProfiler module is disabled");
         return;
     }
 
     module->stopProfiling();
-    logger.info("§aProfiling stopped");
+    output.success("§aProfiling stopped");
 }
 
 } // namespace carpet_mod_for_ll

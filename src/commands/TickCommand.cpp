@@ -37,64 +37,64 @@ void TickCommand::registerCommand() {
 
         // /tick freeze, /tick fz
         command.overload().text("freeze").execute([](CommandOrigin const&, CommandOutput& output) {
-            TickCommand::handleFreeze();
+            TickCommand::handleFreeze(output);
         });
 
         command.overload().text("fz").execute([](CommandOrigin const&, CommandOutput& output) {
-            TickCommand::handleFreeze();
+            TickCommand::handleFreeze(output);
         });
 
         // /tick reset, /tick r
         command.overload().text("reset").execute([](CommandOrigin const&, CommandOutput& output) {
-            TickCommand::handleReset();
+            TickCommand::handleReset(output);
         });
 
         command.overload().text("r").execute([](CommandOrigin const&, CommandOutput& output) {
-            TickCommand::handleReset();
+            TickCommand::handleReset(output);
         });
 
         // /tick forward <ticks>, /tick fw <ticks>
         command.overload<TickIntParam>().text("forward").required("value").execute(
             [](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
-                TickCommand::handleForward(params.value);
+                TickCommand::handleForward(output, params.value);
             }
         );
 
         command.overload<TickIntParam>().text("fw").required("value").execute(
             [](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
-                TickCommand::handleForward(params.value);
+                TickCommand::handleForward(output, params.value);
             }
         );
 
         // /tick warp <ticks>
         command.overload<TickIntParam>().text("warp").required("value").execute(
             [](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
-                TickCommand::handleWarp(params.value);
+                TickCommand::handleWarp(output, params.value);
             }
         );
 
         // /tick acc <multiplier>
         command.overload<TickIntParam>().text("acc").required("value").execute(
             [](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
-                TickCommand::handleAcc(params.value);
+                TickCommand::handleAcc(output, params.value);
             }
         );
 
         // /tick slow <divider>
         command.overload<TickIntParam>().text("slow").required("value").execute(
             [](CommandOrigin const&, CommandOutput& output, TickIntParam const& params) {
-                TickCommand::handleSlow(params.value);
+                TickCommand::handleSlow(output, params.value);
             }
         );
 
         // /tick query
         command.overload().text("query").execute([](CommandOrigin const&, CommandOutput& output) {
-            TickCommand::handleQuery();
+            TickCommand::handleQuery(output);
         });
 
         // /tick mspt
         command.overload().text("mspt").execute([](CommandOrigin const&, CommandOutput& output) {
-            TickCommand::handleMSPT();
+            TickCommand::handleMSPT(output);
         });
 
         mod->getLogger().info("Tick command registered successfully");
@@ -112,152 +112,139 @@ TickModule* TickCommand::getTickModule() {
     return tickModule;
 }
 
-void TickCommand::handleFreeze() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleFreeze(CommandOutput& output) {
+
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 
     module->freezeTick();
-    logger.info("§aTick has been frozen");
+    output.success("§aTick has been frozen");
 }
 
-void TickCommand::handleReset() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleReset(CommandOutput& output) {
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 
     module->resetTick();
-    logger.info("§aTick has been reset to normal");
+    output.success("§aTick has been reset to normal");
 }
 
-void TickCommand::handleForward(int ticks) {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleForward(CommandOutput& output, int ticks) {
 
     if (ticks <= 0) {
-        logger.error("§cTicks must be a positive number");
+        output.error("§cTicks must be a positive number");
         return;
     }
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 
     module->forwardTick(ticks);
-    logger.info("§aForwarded {} ticks", ticks);
+    output.success("§aForwarded {} ticks", ticks);
 }
 
-void TickCommand::handleWarp(int ticks) {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleWarp(CommandOutput& output, int ticks) {
 
     if (ticks <= 0) {
-        logger.error("§cTicks must be a positive number");
+        output.error("§cTicks must be a positive number");
         return;
     }
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 
     module->warpTick(ticks);
-    logger.info("§aWarping {} ticks...", ticks);
+    output.success("§aWarping {} ticks...", ticks);
 }
 
-void TickCommand::handleAcc(int multiplier) {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleAcc(CommandOutput& output, int multiplier) {
 
     if (multiplier <= 0) {
-        logger.error("§cMultiplier must be a positive number");
+        output.error("§cMultiplier must be a positive number");
         return;
     }
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 
     module->accelerateTick(multiplier);
-    logger.info("§aTick acceleration set to {}x", multiplier);
+    output.success("§aTick acceleration set to {}x", multiplier);
 }
 
-void TickCommand::handleSlow(int divider) {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleSlow(CommandOutput& output, int divider) {
 
     if (divider <= 0) {
-        logger.error("§cDivider must be a positive number");
+        output.error("§cDivider must be a positive number");
         return;
     }
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 
     module->slowDownTick(divider);
-    logger.info("§aTick slowed down by factor of {}", divider);
+    output.success("§aTick slowed down by factor of {}", divider);
 }
 
-void TickCommand::handleQuery() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleQuery(CommandOutput& output) {
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 
@@ -265,18 +252,16 @@ void TickCommand::handleQuery() {
     // Status will be logged by the module itself
 }
 
-void TickCommand::handleMSPT() {
-    auto  mod    = ll::mod::NativeMod::current();
-    auto& logger = mod->getLogger();
+void TickCommand::handleMSPT(CommandOutput& output) {
 
     auto* module = getTickModule();
     if (!module) {
-        logger.error("§cTickControl module not found");
+        output.error("§cTickControl module not found");
         return;
     }
 
     if (!module->isEnabled()) {
-        logger.error("§cTickControl module is disabled");
+        output.error("§cTickControl module is disabled");
         return;
     }
 

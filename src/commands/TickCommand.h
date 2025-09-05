@@ -1,24 +1,15 @@
 #pragma once
 
-#include <string>
+#include "mc/server/commands/CommandOutput.h"
 
 namespace carpet_mod_for_ll {
 
 // Tick命令参数结构
 struct TickCommandParams {
-    enum class Action {
-        Freeze,
-        Reset,
-        Forward,
-        Warp,
-        Acc,
-        Slow,
-        Query,
-        MSPT
-    };
-    
+    enum class Action { Freeze, Reset, Forward, Warp, Acc, Slow, Query, MSPT };
+
     Action action;
-    int value = 0;  // for forward/warp/acc/slow commands
+    int    value = 0; // for forward/warp/acc/slow commands
 };
 
 // Tick命令管理类
@@ -29,15 +20,15 @@ public:
 
 private:
     // 命令处理函数
-    static void handleFreeze();
-    static void handleReset();
-    static void handleForward(int ticks);
-    static void handleWarp(int ticks);
-    static void handleAcc(int multiplier);
-    static void handleSlow(int divider);
-    static void handleQuery();
-    static void handleMSPT();
-    
+    static void handleFreeze(CommandOutput& output);
+    static void handleReset(CommandOutput& output);
+    static void handleForward(CommandOutput& output, int ticks);
+    static void handleWarp(CommandOutput& output, int ticks);
+    static void handleAcc(CommandOutput& output, int multiplier);
+    static void handleSlow(CommandOutput& output, int divider);
+    static void handleQuery(CommandOutput& output);
+    static void handleMSPT(CommandOutput& output);
+
     // 获取Tick模块的辅助函数
     static class TickModule* getTickModule();
 };

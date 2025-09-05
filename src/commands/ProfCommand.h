@@ -1,20 +1,12 @@
 #pragma once
 
-#include <string>
-
+#include "mc/server/commands/CommandOutput.h"
 namespace carpet_mod_for_ll {
 
 // Prof命令参数结构
 struct ProfCommandParams {
-    enum class Action {
-        Normal,
-        Chunk,
-        Entity,
-        PendingTick,
-        MSPT,
-        Stop
-    };
-    
+    enum class Action { Normal, Chunk, Entity, PendingTick, MSPT, Stop };
+
     Action action;
 };
 
@@ -26,13 +18,13 @@ public:
 
 private:
     // 命令处理函数
-    static void handleNormal();
-    static void handleChunk();
-    static void handleEntity();
-    static void handlePendingTick();
-    static void handleMSPT();
-    static void handleStop();
-    
+    static void handleNormal(CommandOutput& output);
+    static void handleChunk(CommandOutput& output);
+    static void handleEntity(CommandOutput& output);
+    static void handlePendingTick(CommandOutput& output);
+    static void handleMSPT(CommandOutput& output);
+    static void handleStop(CommandOutput& output);
+
     // 获取Profiler模块的辅助函数
     static class ProfilerModule* getProfilerModule();
 };
